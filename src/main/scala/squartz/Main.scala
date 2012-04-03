@@ -11,7 +11,7 @@ object Main extends App {
   squartzBuilder
     .scheduleWithIntervalInSeconds(3) 
     .scheduleRepeatForever 
-    .start 
+    .sched
 
   Thread.sleep(16000)
   Squartz.shutdown

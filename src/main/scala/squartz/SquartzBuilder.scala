@@ -205,7 +205,7 @@ abstract class SquartzBuilder[T](
 
   protected def getScheduleBuilder: ScheduleBuilder[_ <: Trigger]
 
-  def start: (Date,Trigger,Option[JobDetail]) = {
+  def sched: (Date,Trigger,Option[JobDetail]) = {
     triggerBuilder.withSchedule(getScheduleBuilder)
     val trigger = triggerBuilder.build
     jobBuilderOpt match {

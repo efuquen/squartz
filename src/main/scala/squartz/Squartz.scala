@@ -63,32 +63,84 @@ object Squartz {
   ) = new SquartzSimpleBuilder(func)
 
   def cronBuilder(
-    cronStr: String,
-    func: (JobExecutionContext) => Unit
+    func: (JobExecutionContext) => Unit,
+    cronStr: String
   ) = new SquartzCronBuilder(cronStr,func)
 
-  /*def schedCron(
-    func: (JobExectionContext) => Unit,
+  def schedCron(
+    func: (JobExecutionContext) => Unit,
     cronStr: String,
-    triggerKey: Option[TriggerKey] = None,
-    startDate: Option[Date] = None,
-    endDate: Option[Date] = None
-  ): (Date, TriggerKey) = {
-    val triggerBuilder = newTrigger
-      .withSchedule(cronSchedule(cronStr))
+    startDateOpt: Option[Date] = None,
+    endDateOpt: Option[Date] = None,
+    jobIdentOpt: Option[(String, Option[String])] = None,
+    triggerIdentOpt: Option[(String, Option[String])] = None,
+    jobDataMapOpt: Option[Map[String,Any]] = None,
+    triggerDataMapOpt: Option[Map[String,Any]] = None
+  ): (Date, (String,String), (String,String)) = {
+    val builder = cronBuilder(func, cronStr)
 
-    (sched(func, trigger), trigger.getKey)
+    configureBuilder( 
+      builder,
+      startDateOpt, endDateOpt,
+      jobIdentOpt, triggerIdentOpt,
+      jobDataMapOpt, triggerDataMapOpt
+    )
+
+    val (schedDate, trigger, jobDetailOpt) = builder.sched
+    val triggerKey = trigger.getKey
+    val jobKey = trigger.getJobKey
+
+    (schedDate, (triggerKey.getName, triggerKey.getGroup), (jobKey.getName, jobKey.getGroup))
   }
 
-  def schedSimpleForever(
+  private def configureBuilder(
+    builder: SquartzBuilder[_],
+    startDateOpt: Option[Date] = None,
+    endDateOpt: Option[Date] = None,
+    jobIdentOpt: Option[(String, Option[String])] = None,
+    triggerIdentOpt: Option[(String, Option[String])] = None,
+    jobDataMapOpt: Option[Map[String,Any]] = None,
+    triggerDataMapOpt: Option[Map[String,Any]] = None
+  ) {
+
+    import scala.collection.JavaConversions._
+
+    jobIdentOpt.foreach(jobIdent => {
+      val (name, groupOpt) = jobIdent
+      groupOpt match {
+        case Some(group) => 
+          builder.jobWithIdentity(name, group)
+        case None =>
+          builder.jobWithIdentity(name)
+      }
+    })
+
+    triggerIdentOpt.foreach(triggerIdent => {
+      val (name, groupOpt) = triggerIdent
+      groupOpt match {
+        case Some(group) => 
+          builder.triggerWithIdentity(name, group)
+        case None =>
+          builder.triggerWithIdentity(name)
+      }
+    })
+
+    startDateOpt.foreach(startDate => builder.triggerStartAt(startDate))
+    endDateOpt.foreach(endDate => builder.triggerEndAt(endDate))
+
+    jobDataMapOpt.foreach(dataMap => builder.jobUsingJobData(new JobDataMap(dataMap)))
+    triggerDataMapOpt.foreach(dataMap => builder.triggerUsingJobData(new JobDataMap(dataMap)))
+  }
+
+  /*def schedSimpleForever(
     func: (JobExectionContext) => Unit,
     repeatInterval: Int,
     repeatUnit: Time
-  ): (Date, TriggerKey) = {
+  ): (Date, (String, String), (String, String)) = {
     schedSimple(func, repeatInterval, repeatUnit, -1)
-  }
+  }*/
 
-  def schedSimple(
+  /*def schedSimple(
     func: (JobExectionContext) => Unit,
     repeatInterval: Int,
     repeatUnit: Time,
