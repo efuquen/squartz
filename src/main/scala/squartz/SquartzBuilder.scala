@@ -69,17 +69,17 @@ abstract class SquartzBuilder[T](
   }
 
   def jobUsingJobData(dataKey: String, value: Float): T = {
-    jobBuilderOpt.foreach(_.usingJobData(dataKey, value))
+    jobBuilderOpt.foreach(_.usingJobData(dataKey, new java.lang.Float(value)))
     this.asInstanceOf[T]
   }
 
   def jobUsingJobData(dataKey: String, value: Int): T = {
-    jobBuilderOpt.foreach(_.usingJobData(dataKey, value))
+    jobBuilderOpt.foreach(_.usingJobData(dataKey, new java.lang.Integer(value)))
     this.asInstanceOf[T]
   }
 
   def jobUsingJobData(dataKey: String, value: Long): T = {
-    jobBuilderOpt.foreach(_.usingJobData(dataKey, value))
+    jobBuilderOpt.foreach(_.usingJobData(dataKey, new java.lang.Long(value)))
     this.asInstanceOf[T]
   }
 
@@ -149,7 +149,7 @@ abstract class SquartzBuilder[T](
   }
 
   def triggerUsingJobData(newJobDataMap: JobDataMap): T = {
-    triggerBuilder.
+    triggerBuilder.usingJobData(newJobDataMap)
     this.asInstanceOf[T]
   }
 
@@ -159,17 +159,17 @@ abstract class SquartzBuilder[T](
   }
 
   def triggerUsingJobData(dataKey: String, value: Float): T = {
-    triggerBuilder.usingJobData(dataKey, value)
+    triggerBuilder.usingJobData(dataKey, new java.lang.Float(value))
     this.asInstanceOf[T]
   }
 
   def triggerUsingJobData(dataKey: String, value: Int): T = {
-    triggerBuilder.usingJobData(dataKey, value)
+    triggerBuilder.usingJobData(dataKey, new java.lang.Integer(value))
     this.asInstanceOf[T]
   }
 
   def triggerUsingJobData(dataKey: String, value: Long): T = {
-    triggerBuilder.usingJobData(dataKey, value)
+    triggerBuilder.usingJobData(dataKey, new java.lang.Long(value))
     this.asInstanceOf[T]
   }
 
