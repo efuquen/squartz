@@ -28,20 +28,26 @@ import org.quartz.TriggerBuilder._
 import org.quartz.DateBuilder._
 
 class SquartzCronBuilder(
-  cronStr: String,
+  scheduleBuilder: CronScheduleBuilder,
   squartzFuncOpt: Option[(JobExecutionContext) => Unit] = None
-) extends SquartzBuilder[SquartzSimpleBuilder](squartzFuncOpt) {
+) extends SquartzBuilder[SquartzCronBuilder](squartzFuncOpt) {
 
-  val scheduleBuilder = cronSchedule(cronStr)
+  def this(cronStr: String) = this(cronSchedule(cronStr), None)
+  def this(
+    cronStr: String,
+    squartzFunc: (JobExecutionContext) => Unit
+  ) = this(cronSchedule(cronStr), Some(squartzFunc))
 
   override protected def getScheduleBuilder = scheduleBuilder
 }
 
 class SquartzSimpleBuilder(
+  scheduleBuilder: SimpleScheduleBuilder,
   squartzFuncOpt: Option[(JobExecutionContext) => Unit] = None
 ) extends SquartzBuilder[SquartzSimpleBuilder](squartzFuncOpt) {
 
-  val scheduleBuilder = simpleSchedule
+  def this() = this(simpleSchedule)
+  def this(squartzFunc: (JobExecutionContext) => Unit) = this(simpleSchedule, Some(squartzFunc))
 
   def scheduleWithIntervalInHours(intervalHours: Int): SquartzSimpleBuilder = {
     scheduleBuilder.withIntervalInHours(intervalHours)
@@ -243,12 +249,12 @@ object Squartz {
 
   def simpleBuilder(
     func: (JobExecutionContext) => Unit
-  ) = new SquartzSimpleBuilder(Some(func))
+  ) = new SquartzSimpleBuilder(func)
 
   def cronBuilder(
     cronStr: String,
     func: (JobExecutionContext) => Unit
-  ) = new SquartzCronBuilder(cronStr,Some(func))
+  ) = new SquartzCronBuilder(cronStr,func)
 
   /*def cronBuilder(
     func: (JobExecutionContext) => Unit
