@@ -107,15 +107,34 @@ abstract class SquartzBuilder[T](
     jobBuilderOpt.foreach(_.withIdentity(name, group))
     this.asInstanceOf[T]
   }
-  /*
-  def job: SquartzBuilder = {
-    jobBuilderOpt.foreach( _.)
-    this
-  }
-  */
 
   def triggerEndAt(triggerEndTime: Date): T = {
     triggerBuilder.endAt(triggerEndTime)
+    this.asInstanceOf[T]
+  }
+
+  def triggerForJob(jobDetail: JobDetail): T = {
+    triggerBuilder.forJob(jobDetail)
+    this.asInstanceOf[T]
+  }
+
+  def triggerForJob(keyOfJobToFire: JobKey): T = {
+    triggerBuilder.forJob(keyOfJobToFire)
+    this.asInstanceOf[T]
+  }
+
+  def triggerForJob(jobName: String): T = {
+    triggerBuilder.forJob(jobName)
+    this.asInstanceOf[T]
+  }
+
+  def triggerForJob(jobName: String, jobGroup: String): T = {
+    triggerBuilder.forJob(jobName, jobGroup)
+    this.asInstanceOf[T]
+  }
+
+  def triggerModifiedByCalendar(calName: String): T = {
+    triggerBuilder.modifiedByCalendar(calName)
     this.asInstanceOf[T]
   }
 
@@ -129,6 +148,41 @@ abstract class SquartzBuilder[T](
     this.asInstanceOf[T]
   }
 
+  def triggerUsingJobData(newJobDataMap: JobDataMap): T = {
+    triggerBuilder.
+    this.asInstanceOf[T]
+  }
+
+  def triggerUsingJobData(dataKey: String, value: Double): T = {
+    triggerBuilder.usingJobData(dataKey, value)
+    this.asInstanceOf[T]
+  }
+
+  def triggerUsingJobData(dataKey: String, value: Float): T = {
+    triggerBuilder.usingJobData(dataKey, value)
+    this.asInstanceOf[T]
+  }
+
+  def triggerUsingJobData(dataKey: String, value: Int): T = {
+    triggerBuilder.usingJobData(dataKey, value)
+    this.asInstanceOf[T]
+  }
+
+  def triggerUsingJobData(dataKey: String, value: Long): T = {
+    triggerBuilder.usingJobData(dataKey, value)
+    this.asInstanceOf[T]
+  }
+
+  def triggerUsingJobData(dataKey: String, value: String): T = {
+    triggerBuilder.usingJobData(dataKey, value)
+    this.asInstanceOf[T]
+  }
+
+  def triggerWithDescription(triggerDescription: String): T = {
+    triggerBuilder.withDescription(triggerDescription)
+    this.asInstanceOf[T]
+  }
+
   def triggerWithIdentity(name: String): T = {
     triggerBuilder.withIdentity(name)
     this.asInstanceOf[T]
@@ -139,17 +193,15 @@ abstract class SquartzBuilder[T](
     this.asInstanceOf[T]
   }
 
+  def triggerWithIdentity(triggerKey: TriggerKey): T = {
+    triggerBuilder.withIdentity(triggerKey)
+    this.asInstanceOf[T]
+  }
+
   def triggerWithPriority(triggerPriority: Int): T = {
     triggerBuilder.withPriority(triggerPriority)
     this.asInstanceOf[T]
   }
-
-  /*
-  def trigger: SquartzBuilder = {
-    triggerBuilder.
-    this
-  }
-  */
 
   protected def getScheduleBuilder: ScheduleBuilder[_ <: Trigger]
 
