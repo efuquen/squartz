@@ -63,6 +63,31 @@ abstract class SquartzBuilder[T](
     this.asInstanceOf[T]
   }
 
+  def jobUsingJobData(dataKey: String, value: Double): T = {
+    jobBuilderOpt.foreach(_.usingJobData(dataKey, value))
+    this.asInstanceOf[T]
+  }
+
+  def jobUsingJobData(dataKey: String, value: Float): T = {
+    jobBuilderOpt.foreach(_.usingJobData(dataKey, value))
+    this.asInstanceOf[T]
+  }
+
+  def jobUsingJobData(dataKey: String, value: Int): T = {
+    jobBuilderOpt.foreach(_.usingJobData(dataKey, value))
+    this.asInstanceOf[T]
+  }
+
+  def jobUsingJobData(dataKey: String, value: Long): T = {
+    jobBuilderOpt.foreach(_.usingJobData(dataKey, value))
+    this.asInstanceOf[T]
+  }
+
+  def jobUsingJobData(dataKey: String, value: String): T = {
+    jobBuilderOpt.foreach(_.usingJobData(dataKey, value))
+    this.asInstanceOf[T]
+  }
+
   def jobWithDescription(jobDescription: String): T = {
     jobBuilderOpt.foreach(_.withDescription(jobDescription))
     this.asInstanceOf[T]
