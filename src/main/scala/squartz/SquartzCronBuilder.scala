@@ -18,19 +18,63 @@ package squartz
 import java.util.Date
 
 import org.quartz._
-import org.quartz.CronScheduleBuilder._
+
+object SquartzCronBuilder {
+  def dailyAtHourAndMinute(hour: Int, minute: Int) = new SquartzCronBuilder(
+    CronScheduleBuilder.dailyAtHourAndMinute(hour, minute), None
+  )
+
+  def dailyAtHourAndMinute(hour: Int, minute: Int, squartzFunc: (JobExecutionContext) => Unit) = new SquartzCronBuilder(
+    CronScheduleBuilder.dailyAtHourAndMinute(hour, minute), Some(squartzFunc)
+  )
+
+  def monthlyOnDayAndHourAndMinute(dayOfMonth: Int, hour: Int, minute: Int) = new SquartzCronBuilder(
+    CronScheduleBuilder.monthlyOnDayAndHourAndMinute(dayOfMonth, hour, minute), None
+  )
+
+  def monthlyOnDayAndHourAndMinute(dayOfMonth: Int, hour: Int, minute: Int, squartzFunc: (JobExecutionContext) => Unit) = new SquartzCronBuilder(
+    CronScheduleBuilder.monthlyOnDayAndHourAndMinute(dayOfMonth, hour, minute), Some(squartzFunc)
+  )
+
+  def weeklyOnDayAndHourAndMinute(dayOfWeek: Int, hour: Int, minute: Int) = new SquartzCronBuilder(
+    CronScheduleBuilder.weeklyOnDayAndHourAndMinute(dayOfWeek, hour, minute), None
+  )
+
+  def weeklyOnDayAndHourAndMinute(dayOfWeek: Int, hour: Int, minute: Int, squartzFunc: (JobExecutionContext) => Unit) = new SquartzCronBuilder(
+    CronScheduleBuilder.weeklyOnDayAndHourAndMinute(dayOfWeek, hour, minute), Some(squartzFunc)
+  )
+}
 
 class SquartzCronBuilder(
   scheduleBuilder: CronScheduleBuilder,
   squartzFuncOpt: Option[(JobExecutionContext) => Unit] = None
 ) extends SquartzBuilder[SquartzCronBuilder](squartzFuncOpt) {
 
-  def this(cronStr: String) = this(cronSchedule(cronStr), None)
+  def this(cronStr: String) = this(CronScheduleBuilder.cronSchedule(cronStr), None)
   def this(
     cronStr: String,
     squartzFunc: (JobExecutionContext) => Unit
-  ) = this(cronSchedule(cronStr), Some(squartzFunc))
+  ) = this(CronScheduleBuilder.cronSchedule(cronStr), Some(squartzFunc))
+
+  def scheduleInTimeZone(timezone: java.util.TimeZone): SquartzCronBuilder = {
+    scheduleBuilder.inTimeZone(timezone)
+    this
+  }
+
+  def scheduleWithMisfireHandlingInstructionDoNothing: SquartzCronBuilder = {
+    scheduleBuilder.withMisfireHandlingInstructionDoNothing
+    this
+  }
+
+  def scheduleWithMisfireHandlingInstructionFireAndProceed: SquartzCronBuilder = {
+    scheduleBuilder.withMisfireHandlingInstructionFireAndProceed
+    this
+  }
+
+  def scheduleWithMisfireHandlingInstructionIgnoreMisfires: SquartzCronBuilder = {
+    scheduleBuilder.withMisfireHandlingInstructionIgnoreMisfires
+    this
+  }
 
   override protected def getScheduleBuilder = scheduleBuilder
 }
-
