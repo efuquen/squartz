@@ -1,4 +1,4 @@
-package com.grooveshark.squartz
+package squartz
 
 object Main extends App {
 
