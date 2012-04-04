@@ -77,15 +77,18 @@ object Squartz {
     jobDataMapOpt: Option[Map[String,Any]] = None,
     triggerDataMapOpt: Option[Map[String,Any]] = None
   ): (Date, (String,String), (String,String)) = {
-    val builder = cronBuilder(func, cronStr)
 
+    val builder = cronBuilder(func, cronStr)
     configureBuilder( 
       builder,
       startDateOpt, endDateOpt,
       jobIdentOpt, triggerIdentOpt,
       jobDataMapOpt, triggerDataMapOpt
     )
+    runBuilder(builder)
+  }
 
+  private def runBuilder(builder: SquartzBuilder[_]): (Date, (String, String), (String, String)) = {
     val (schedDate, trigger, jobDetailOpt) = builder.sched
     val triggerKey = trigger.getKey
     val jobKey = trigger.getJobKey
@@ -102,7 +105,6 @@ object Squartz {
     jobDataMapOpt: Option[Map[String,Any]] = None,
     triggerDataMapOpt: Option[Map[String,Any]] = None
   ) {
-
     import scala.collection.JavaConversions._
 
     jobIdentOpt.foreach(jobIdent => {
@@ -132,47 +134,72 @@ object Squartz {
     triggerDataMapOpt.foreach(dataMap => builder.triggerUsingJobData(new JobDataMap(dataMap)))
   }
 
-  /*def schedSimpleForever(
-    func: (JobExectionContext) => Unit,
-    repeatInterval: Int,
-    repeatUnit: Time
-  ): (Date, (String, String), (String, String)) = {
-    schedSimple(func, repeatInterval, repeatUnit, -1)
-  }*/
-
-  /*def schedSimple(
-    func: (JobExectionContext) => Unit,
+  def schedSimpleForever(
+    func: (JobExecutionContext) => Unit,
     repeatInterval: Int,
     repeatUnit: Time,
-    repeatCount: Int
-  ): (Date, TriggerKey) = {
-    val triggerSched = repeatUnit match {
-      case SECOND =>
-        simpleSchedule.withIntervalInSeconds(repeatInterval)
-      case MINUTE =>
-        simpleSchedule.withIntervalInMinutes(repeatInterval)
-      case HOUR =>
-        simpleSchedule.withIntervalInHours(repeatInterval)
+
+    startDateOpt: Option[Date] = None,
+    endDateOpt: Option[Date] = None,
+    jobIdentOpt: Option[(String, Option[String])] = None,
+    triggerIdentOpt: Option[(String, Option[String])] = None,
+    jobDataMapOpt: Option[Map[String,Any]] = None,
+    triggerDataMapOpt: Option[Map[String,Any]] = None
+  ): (Date, (String, String), (String, String)) = {
+    schedSimple(func, repeatInterval, repeatUnit, -1)
+  }
+
+  def schedSimple(
+    func: (JobExecutionContext) => Unit,
+    repeatInterval: Int,
+    repeatUnit: Time,
+    repeatCount: Int,
+    
+    startDateOpt: Option[Date] = None,
+    endDateOpt: Option[Date] = None,
+    jobIdentOpt: Option[(String, Option[String])] = None,
+    triggerIdentOpt: Option[(String, Option[String])] = None,
+    jobDataMapOpt: Option[Map[String,Any]] = None,
+    triggerDataMapOpt: Option[Map[String,Any]] = None
+  ): (Date, (String, String), (String, String)) = {
+    val builder = repeatUnit match {
+      case SECONDS =>
+        if(repeatCount >= 0)
+          SquartzSimpleBuilder.repeatSecondlyForTotalCount(repeatCount, repeatInterval, func)
+        else
+          SquartzSimpleBuilder.repeatSecondlyForever(repeatInterval, func)
+      case MINUTES =>
+        if(repeatCount >= 0)
+          SquartzSimpleBuilder.repeatMinutelyForTotalCount(repeatCount, repeatInterval, func)
+        else
+          SquartzSimpleBuilder.repeatMinutelyForever(repeatInterval, func)
+      case HOURS =>
+        if(repeatCount >= 0)
+          SquartzSimpleBuilder.repeatHourlyForTotalCount(repeatCount, repeatInterval, func)
+        else
+          SquartzSimpleBuilder.repeatHourlyForever(repeatInterval, func)
     }
 
-    if(repeatCount >= 0) {
-      triggerSched.withRepeatCount(repeatCount)
-    } else {
-      triggerSched.repeatForever
-    }
-
-    val trigger = newTrigger
-      .withSchedule(triggerSched)
-      .build
-
-    (sched(func, trigger), trigger.getKey)
-  }*/
+    configureBuilder( 
+      builder,
+      startDateOpt, endDateOpt,
+      jobIdentOpt, triggerIdentOpt,
+      jobDataMapOpt, triggerDataMapOpt
+    )
+    runBuilder(builder)
+  }
 
   def shutdown { synchronized {
     scheduler.shutdown
     scheduler = null
   }}
 }
+
+case class Time
+
+case object SECONDS extends Time
+case object MINUTES extends Time
+case object HOURS extends Time
 
 class ScalaJobFactory extends org.quartz.simpl.PropertySettingJobFactory {
   override def newJob(bundle: org.quartz.spi.TriggerFiredBundle, scheduler: Scheduler): Job = {

@@ -4,14 +4,13 @@ object Main extends App {
 
   Squartz.startup
   
-  val squartzBuilder = Squartz.simpleBuilder(
-    _ => println("Hello, World!!!")
+  val (schedDate, triggerTup, jobTup) = Squartz.schedSimpleForever(
+    _ => println("Hello, World!!!"),
+   3,
+   SECONDS
   )
 
-  squartzBuilder
-    .scheduleWithIntervalInSeconds(3) 
-    .scheduleRepeatForever 
-    .sched
+  println(schedDate + " " + triggerTup + " " + jobTup)
 
   Thread.sleep(16000)
   Squartz.shutdown
