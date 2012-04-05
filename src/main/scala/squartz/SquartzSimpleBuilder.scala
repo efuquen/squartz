@@ -30,6 +30,12 @@ object SquartzSimpleBuilder {
     Some(squartzFunc)
   )
 
+  def repeatHourlyForever(squartzFunc: (JobExecutionContext) => Unit, lockFunc: (Long) => Unit) = new SquartzSimpleBuilder(
+    SimpleScheduleBuilder.repeatHourlyForever,
+    Some(squartzFunc),
+    Some(lockFunc)
+  )
+
   def repeatHourlyForever(hours: Int) = new SquartzSimpleBuilder(
     SimpleScheduleBuilder.repeatHourlyForever(hours),
     None
@@ -38,6 +44,12 @@ object SquartzSimpleBuilder {
   def repeatHourlyForever(hours: Int, squartzFunc: (JobExecutionContext) => Unit) = new SquartzSimpleBuilder(
     SimpleScheduleBuilder.repeatHourlyForever(hours),
     Some(squartzFunc)
+  )
+
+  def repeatHourlyForever(hours: Int, squartzFunc: (JobExecutionContext) => Unit, lockFunc: (Long) => Unit) = new SquartzSimpleBuilder(
+    SimpleScheduleBuilder.repeatHourlyForever(hours),
+    Some(squartzFunc),
+    Some(lockFunc)
   )
 
   def repeatHourlyForTotalCount(count: Int) = new SquartzSimpleBuilder(
@@ -50,6 +62,12 @@ object SquartzSimpleBuilder {
     Some(squartzFunc)
   )
 
+  def repeatHourlyForTotalCount(count: Int, squartzFunc: (JobExecutionContext) => Unit, lockFunc: (Long) => Unit) = new SquartzSimpleBuilder(
+    SimpleScheduleBuilder.repeatHourlyForTotalCount(count),
+    Some(squartzFunc),
+    Some(lockFunc)
+  )
+
   def repeatHourlyForTotalCount(count: Int, hours: Int) = new SquartzSimpleBuilder(
     SimpleScheduleBuilder.repeatHourlyForTotalCount(count, hours),
     None
@@ -58,6 +76,12 @@ object SquartzSimpleBuilder {
   def repeatHourlyForTotalCount(count: Int, hours: Int, squartzFunc: (JobExecutionContext) => Unit) = new SquartzSimpleBuilder(
     SimpleScheduleBuilder.repeatHourlyForTotalCount(count, hours),
     Some(squartzFunc)
+  )
+
+  def repeatHourlyForTotalCount(count: Int, hours: Int, squartzFunc: (JobExecutionContext) => Unit, lockFunc: (Long) => Unit) = new SquartzSimpleBuilder(
+    SimpleScheduleBuilder.repeatHourlyForTotalCount(count, hours),
+    Some(squartzFunc),
+    Some(lockFunc)
   )
 
   def repeatMinutelyForever = new SquartzSimpleBuilder(
@@ -70,6 +94,12 @@ object SquartzSimpleBuilder {
     Some(squartzFunc)
   )
 
+  def repeatMinutelyForever(squartzFunc: (JobExecutionContext) => Unit, lockFunc: (Long) => Unit) = new SquartzSimpleBuilder(
+    SimpleScheduleBuilder.repeatMinutelyForever,
+    Some(squartzFunc),
+    Some(lockFunc)
+  )
+
   def repeatMinutelyForever(minutes: Int) = new SquartzSimpleBuilder(
     SimpleScheduleBuilder.repeatMinutelyForever(minutes),
     None
@@ -78,6 +108,12 @@ object SquartzSimpleBuilder {
   def repeatMinutelyForever(minutes: Int, squartzFunc: (JobExecutionContext) => Unit) = new SquartzSimpleBuilder(
     SimpleScheduleBuilder.repeatMinutelyForever(minutes),
     Some(squartzFunc)
+  )
+
+  def repeatMinutelyForever(minutes: Int, squartzFunc: (JobExecutionContext) => Unit, lockFunc: (Long) => Unit) = new SquartzSimpleBuilder(
+    SimpleScheduleBuilder.repeatMinutelyForever(minutes),
+    Some(squartzFunc),
+    Some(lockFunc)
   )
 
   def repeatMinutelyForTotalCount(count: Int) = new SquartzSimpleBuilder(
@@ -90,6 +126,12 @@ object SquartzSimpleBuilder {
     Some(squartzFunc)
   )
 
+  def repeatMinutelyForTotalCount(count: Int, squartzFunc: (JobExecutionContext) => Unit, lockFunc: (Long) => Unit) = new SquartzSimpleBuilder(
+    SimpleScheduleBuilder.repeatMinutelyForTotalCount(count),
+    Some(squartzFunc),
+    Some(lockFunc)
+  )
+  
   def repeatMinutelyForTotalCount(count: Int, minutes: Int) = new SquartzSimpleBuilder(
     SimpleScheduleBuilder.repeatMinutelyForTotalCount(count, minutes),
     None
@@ -98,6 +140,12 @@ object SquartzSimpleBuilder {
   def repeatMinutelyForTotalCount(count: Int, minutes: Int, squartzFunc: (JobExecutionContext) => Unit) = new SquartzSimpleBuilder(
     SimpleScheduleBuilder.repeatMinutelyForTotalCount(count, minutes),
     Some(squartzFunc)
+  )
+
+  def repeatMinutelyForTotalCount(count: Int, minutes: Int, squartzFunc: (JobExecutionContext) => Unit, lockFunc: (Long) => Unit) = new SquartzSimpleBuilder(
+    SimpleScheduleBuilder.repeatMinutelyForTotalCount(count, minutes),
+    Some(squartzFunc),
+    Some(lockFunc)
   )
 
   def repeatSecondlyForever = new SquartzSimpleBuilder(
@@ -110,6 +158,12 @@ object SquartzSimpleBuilder {
     Some(squartzFunc)
   )
 
+  def repeatSecondlyForever(squartzFunc: (JobExecutionContext) => Unit, lockFunc: (Long) => Unit) = new SquartzSimpleBuilder(
+    SimpleScheduleBuilder.repeatSecondlyForever,
+    Some(squartzFunc),
+    Some(lockFunc)
+  )
+
   def repeatSecondlyForever(seconds: Int) = new SquartzSimpleBuilder(
     SimpleScheduleBuilder.repeatSecondlyForever(seconds),
     None
@@ -118,6 +172,12 @@ object SquartzSimpleBuilder {
   def repeatSecondlyForever(seconds: Int, squartzFunc: (JobExecutionContext) => Unit) = new SquartzSimpleBuilder(
     SimpleScheduleBuilder.repeatSecondlyForever(seconds),
     Some(squartzFunc)
+  )
+
+  def repeatSecondlyForever(seconds: Int, squartzFunc: (JobExecutionContext) => Unit, lockFunc: (Long) => Unit) = new SquartzSimpleBuilder(
+    SimpleScheduleBuilder.repeatSecondlyForever(seconds),
+    Some(squartzFunc),
+    Some(lockFunc)
   )
 
   def repeatSecondlyForTotalCount(count: Int) = new SquartzSimpleBuilder(
@@ -130,6 +190,12 @@ object SquartzSimpleBuilder {
     Some(squartzFunc)
   )
 
+  def repeatSecondlyForTotalCount(count: Int, squartzFunc: (JobExecutionContext) => Unit, lockFunc: (Long) => Unit) = new SquartzSimpleBuilder(
+    SimpleScheduleBuilder.repeatSecondlyForTotalCount(count),
+    Some(squartzFunc),
+    Some(lockFunc)
+  )
+
   def repeatSecondlyForTotalCount(count: Int, seconds: Int) = new SquartzSimpleBuilder(
     SimpleScheduleBuilder.repeatSecondlyForTotalCount(count, seconds),
     None
@@ -139,15 +205,26 @@ object SquartzSimpleBuilder {
     SimpleScheduleBuilder.repeatSecondlyForTotalCount(count, seconds),
     Some(squartzFunc)
   )
+
+  def repeatSecondlyForTotalCount(count: Int, seconds: Int, squartzFunc: (JobExecutionContext) => Unit, lockFunc: (Long) => Unit) = new SquartzSimpleBuilder(
+    SimpleScheduleBuilder.repeatSecondlyForTotalCount(count, seconds),
+    Some(squartzFunc),
+    Some(lockFunc)
+  )
 }
 
 class SquartzSimpleBuilder(
   scheduleBuilder: SimpleScheduleBuilder,
-  squartzFuncOpt: Option[(JobExecutionContext) => Unit] = None
-) extends SquartzBuilder[SquartzSimpleBuilder](squartzFuncOpt) {
+  squartzFuncOpt: Option[(JobExecutionContext) => Unit] = None,
+  squartzLockFuncOpt: Option[(Long) => Unit] = None
+) extends SquartzBuilder[SquartzSimpleBuilder](squartzFuncOpt, squartzLockFuncOpt) {
 
   def this() = this(SimpleScheduleBuilder.simpleSchedule)
   def this(squartzFunc: (JobExecutionContext) => Unit) = this(SimpleScheduleBuilder.simpleSchedule, Some(squartzFunc))
+  def this(
+    squartzFunc: (JobExecutionContext) => Unit,
+    squartzLockFunc: (Long) => Unit
+  ) = this(SimpleScheduleBuilder.simpleSchedule, Some(squartzFunc), Some(squartzLockFunc))
 
   def scheduleRepeatForever: SquartzSimpleBuilder = {
     scheduleBuilder.repeatForever
