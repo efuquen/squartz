@@ -148,6 +148,31 @@ object Squartz {
     )
   }
 
+  def schedSimpleOnce(
+    func: (JobExecutionContext) => Unit,
+    date: Date,
+
+    jobIdentOpt: Option[(String, Option[String])] = None,
+    triggerIdentOpt: Option[(String, Option[String])] = None,
+    jobDataMapOpt: Option[Map[String,Any]] = None,
+    triggerDataMapOpt: Option[Map[String,Any]] = None,
+    lockFuncOpt: Option[(Long) => Unit] = None
+  ) = {
+    schedSimple(
+      func,
+      0,
+      SECONDS,
+      1,
+      Some(date),
+      None,
+      jobIdentOpt,
+      triggerIdentOpt,
+      jobDataMapOpt,
+      triggerDataMapOpt,
+      lockFuncOpt
+    )
+  }
+
   def schedSimple(
     func: (JobExecutionContext) => Unit,
     repeatInterval: Int,
