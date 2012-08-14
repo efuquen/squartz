@@ -20,59 +20,76 @@ import java.util.Date
 import org.quartz._
 
 object SquartzCronBuilder {
-  def dailyAtHourAndMinute(hour: Int, minute: Int) = new SquartzCronBuilder(
+  def dailyAtHourAndMinute(hour: Int, minute: Int)(implicit squartz: Squartz) = new SquartzCronBuilder(
     CronScheduleBuilder.dailyAtHourAndMinute(hour, minute), None
   )
 
-  def dailyAtHourAndMinute(hour: Int, minute: Int, squartzFunc: (JobExecutionContext) => Unit) = new SquartzCronBuilder(
+  def dailyAtHourAndMinute(
+      hour: Int, minute: Int, squartzFunc: (JobExecutionContext) => Unit
+  )(implicit squartz: Squartz) = new SquartzCronBuilder(
     CronScheduleBuilder.dailyAtHourAndMinute(hour, minute), Some(squartzFunc)
   )
 
-  def dailyAtHourAndMinute(hour: Int, minute: Int, squartzFunc: (JobExecutionContext) => Unit, squartzLockFunc: (Long) => Unit) = new SquartzCronBuilder(
+  def dailyAtHourAndMinute(
+    hour: Int, minute: Int, 
+    squartzFunc: (JobExecutionContext) => Unit, squartzLockFunc: (Long) => Unit
+  )(implicit squartz: Squartz) = new SquartzCronBuilder(
     CronScheduleBuilder.dailyAtHourAndMinute(hour, minute), Some(squartzFunc), Some(squartzLockFunc)
   )
 
-  def monthlyOnDayAndHourAndMinute(dayOfMonth: Int, hour: Int, minute: Int) = new SquartzCronBuilder(
+  def monthlyOnDayAndHourAndMinute(dayOfMonth: Int, hour: Int, minute: Int)(implicit squartz: Squartz) = new SquartzCronBuilder(
     CronScheduleBuilder.monthlyOnDayAndHourAndMinute(dayOfMonth, hour, minute), None
   )
 
-  def monthlyOnDayAndHourAndMinute(dayOfMonth: Int, hour: Int, minute: Int, squartzFunc: (JobExecutionContext) => Unit) = new SquartzCronBuilder(
+  def monthlyOnDayAndHourAndMinute(
+    dayOfMonth: Int, hour: Int, minute: Int, 
+    squartzFunc: (JobExecutionContext) => Unit
+  )(implicit squartz: Squartz) = new SquartzCronBuilder(
     CronScheduleBuilder.monthlyOnDayAndHourAndMinute(dayOfMonth, hour, minute), Some(squartzFunc)
   )
 
-  def monthlyOnDayAndHourAndMinute(dayOfMonth: Int, hour: Int, minute: Int, squartzFunc: (JobExecutionContext) => Unit, squartzLockFunc: (Long) => Unit) = new SquartzCronBuilder(
+  def monthlyOnDayAndHourAndMinute(
+      dayOfMonth: Int, hour: Int, minute: Int, 
+      squartzFunc: (JobExecutionContext) => Unit, squartzLockFunc: (Long) => Unit
+  )(implicit squartz: Squartz) = new SquartzCronBuilder(
     CronScheduleBuilder.monthlyOnDayAndHourAndMinute(dayOfMonth, hour, minute), Some(squartzFunc), Some(squartzLockFunc)
   )
 
-  def weeklyOnDayAndHourAndMinute(dayOfWeek: Int, hour: Int, minute: Int) = new SquartzCronBuilder(
+  def weeklyOnDayAndHourAndMinute(dayOfWeek: Int, hour: Int, minute: Int)(implicit squartz: Squartz) = new SquartzCronBuilder(
     CronScheduleBuilder.weeklyOnDayAndHourAndMinute(dayOfWeek, hour, minute), None
   )
 
-  def weeklyOnDayAndHourAndMinute(dayOfWeek: Int, hour: Int, minute: Int, squartzFunc: (JobExecutionContext) => Unit) = new SquartzCronBuilder(
+  def weeklyOnDayAndHourAndMinute(
+      dayOfWeek: Int, hour: Int, minute: Int, 
+      squartzFunc: (JobExecutionContext) => Unit
+   )(implicit squartz: Squartz) = new SquartzCronBuilder(
     CronScheduleBuilder.weeklyOnDayAndHourAndMinute(dayOfWeek, hour, minute), Some(squartzFunc)
   )
 
-  def weeklyOnDayAndHourAndMinute(dayOfWeek: Int, hour: Int, minute: Int, squartzFunc: (JobExecutionContext) => Unit, squartzLockFunc: (Long) => Unit) = new SquartzCronBuilder(
+  def weeklyOnDayAndHourAndMinute(
+      dayOfWeek: Int, hour: Int, minute: Int, 
+      squartzFunc: (JobExecutionContext) => Unit, squartzLockFunc: (Long) => Unit
+  )(implicit squartz: Squartz) = new SquartzCronBuilder(
     CronScheduleBuilder.weeklyOnDayAndHourAndMinute(dayOfWeek, hour, minute), Some(squartzFunc), Some(squartzLockFunc)
   )
 }
 
-class SquartzCronBuilder(
+class SquartzCronBuilder(  
   scheduleBuilder: CronScheduleBuilder,
   squartzFuncOpt: Option[(JobExecutionContext) => Unit] = None,
   squartzLockFuncOpt: Option[(Long) => Unit] = None
-) extends SquartzBuilder[SquartzCronBuilder](squartzFuncOpt, squartzLockFuncOpt) {
+)(implicit squartz: Squartz) extends SquartzBuilder[SquartzCronBuilder](squartz, squartzFuncOpt, squartzLockFuncOpt) {
 
-  def this(cronStr: String) = this(CronScheduleBuilder.cronSchedule(cronStr), None)
+  def this(cronStr: String)(implicit squartz: Squartz) = this(CronScheduleBuilder.cronSchedule(cronStr), None)
   def this(
     cronStr: String,
     squartzFunc: (JobExecutionContext) => Unit
-  ) = this(CronScheduleBuilder.cronSchedule(cronStr), Some(squartzFunc))
+  )(implicit squartz: Squartz) = this(CronScheduleBuilder.cronSchedule(cronStr), Some(squartzFunc))
   def this(
     cronStr: String,
     squartzFunc: (JobExecutionContext) => Unit,
     squartzLockFunc: (Long) => Unit
-  ) = this(CronScheduleBuilder.cronSchedule(cronStr), Some(squartzFunc), Some(squartzLockFunc))
+  )(implicit squartz: Squartz) = this(CronScheduleBuilder.cronSchedule(cronStr), Some(squartzFunc), Some(squartzLockFunc))
 
 
   def scheduleInTimeZone(timezone: java.util.TimeZone): SquartzCronBuilder = {

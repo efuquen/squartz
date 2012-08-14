@@ -1,12 +1,14 @@
 package squartz
 
+import Squartz._
+
 object Main extends App {
 
   val jobLock = new java.util.concurrent.locks.ReentrantLock 
 
-  Squartz.startup
+  implicit val squartz = Squartz.build.start
   
-  val (schedDate, triggerTup, jobTup) = Squartz.schedSimpleForeverExclusive(
+  val (schedDate, triggerTup, jobTup) = schedSimpleForeverExclusive(
    _ => { 
      println("Hello, World!!!")
      Thread.sleep(5000)
@@ -22,5 +24,5 @@ object Main extends App {
   println(schedDate + " " + triggerTup + " " + jobTup)
 
   Thread.sleep(16000)
-  Squartz.shutdown
+  squartz.shutdown
 }

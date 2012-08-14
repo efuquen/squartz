@@ -23,62 +23,73 @@ import org.quartz._
 import org.quartz.impl._
 
 object Squartz {
-
-  private var scheduler: Scheduler = null 
-
-  def startup(scheculer: Scheduler) {
-    if(scheduler != null) {
-      this.scheduler.shutdown
-      this.scheduler = null
-    }
-    this.scheduler = scheduler
-    this.scheduler.setJobFactory(new ScalaJobFactory)
-    this.scheduler.start
-  }
-
-  def startup { synchronized {
-    if(scheduler != null) {
-      scheduler.shutdown
-      scheduler = null
-    }
-
-    scheduler = StdSchedulerFactory.getDefaultScheduler
+  
+  case class JdbcConfig(
+      val  name: String,
+      val driver: String,
+      val url: String,
+      val user: String,
+      val password: String
+  )
+ 
+  //can only call once for default scheduler
+  def build : Squartz = {
+    val scheduler = StdSchedulerFactory.getDefaultScheduler
     scheduler.setJobFactory(new ScalaJobFactory)
-    scheduler.start
-  }}
-
-  def sched(
-    trigger: Trigger
-  ): Date = {
-    scheduler.scheduleJob(trigger)
+    new Squartz(scheduler)
   }
-
-  def sched(
-    jobDetail: JobDetail,
-    trigger: Trigger
-  ): Date = {
-    scheduler.scheduleJob(jobDetail, trigger)
+  
+  def build(props: java.util.Properties): Squartz = {
+    val schedFact = new StdSchedulerFactory(props)
+    val scheduler = schedFact.getScheduler
+    scheduler.setJobFactory(new ScalaJobFactory)
+    new Squartz(scheduler)
   }
-
+  
+  def build(
+    name: String,
+    threadCount: Int = 10,
+    jobStore: String = "org.quartz.simpl.RAMJobStore",
+    jdbcConfigOpt: Option[JdbcConfig] = None
+  ): Squartz = {
+    val props = new java.util.Properties
+    props.setProperty("org.quartz.scheduler.instanceName", name)
+    props.setProperty("org.quartz.threadPool.threadCount", threadCount.toString)
+    props.setProperty("org.quartz.jobStore.class", jobStore)
+    if(jobStore == "org.quartz.impl.jdbcjobstore.JobStoreTX") {
+      jdbcConfigOpt match {
+        case Some(jdbcConfig) =>
+          props.setProperty("org.quartz.jobStore.dataSource", jdbcConfig.name)
+          props.setProperty("org.quartz.dataSource.%s.driver".format(jdbcConfig.name), jdbcConfig.driver)
+          props.setProperty("org.quartz.dataSource.%s.URL".format(jdbcConfig.name), jdbcConfig.url)
+          props.setProperty("org.quartz.dataSource.%s.user".format(jdbcConfig.name), jdbcConfig.user)
+          props.setProperty("org.quartz.dataSource.%s.password".format(jdbcConfig.name), jdbcConfig.password)
+        case None =>
+          throw new Exception("Need to specify jdbcConfig for " + jobStore)
+      }
+    }
+    build(props)
+  }
+    
   def simpleBuilder(
     func: (JobExecutionContext) => Unit
-  ) = new SquartzSimpleBuilder(func)
+  )(implicit squartz: Squartz) = new SquartzSimpleBuilder(func)
 
   def simpleBuilder(
     func: (JobExecutionContext) => Unit,
     lockFunc: (Long) => Unit
-  ) = new SquartzSimpleBuilder(func, lockFunc)
+  )(implicit squartz: Squartz) = new SquartzSimpleBuilder(func, lockFunc)
 
   def cronBuilder(
     func: (JobExecutionContext) => Unit,
     cronStr: String
-  ) = new SquartzCronBuilder(cronStr,func)
+  )(implicit squartz: Squartz) = new SquartzCronBuilder(cronStr,func)
 
   def cronBuilder(
     func: (JobExecutionContext) => Unit,
     lockFunc: (Long) => Unit,
     cronStr: String
-  ) = new SquartzCronBuilder(cronStr,func,lockFunc)
+  )(implicit squartz: Squartz) = new SquartzCronBuilder(cronStr,func,lockFunc)
 
   def schedCron(
     func: (JobExecutionContext) => Unit,
@@ -90,7 +101,7 @@ object Squartz {
     jobDataMapOpt: Option[Map[String,Any]] = None,
     triggerDataMapOpt: Option[Map[String,Any]] = None,
     lockFuncOpt: Option[(Long) => Unit] = None
-  ): (Date, (String,String), (String,String)) = {
+  )(implicit squartz: Squartz): (Date, (String,String), (String,String)) = {
 
     val builder = lockFuncOpt match {
       case Some(lockFunc) =>
@@ -120,7 +131,7 @@ object Squartz {
     jobDataMapOpt: Option[Map[String,Any]] = None,
     triggerDataMapOpt: Option[Map[String,Any]] = None,
     lockFuncOpt: Option[(Long) => Unit] = None
-  ): (Date, (String, String), (String, String)) = {
+  )(implicit squartz: Squartz): (Date, (String, String), (String, String)) = {
     schedSimple(func, repeatInterval, repeatUnit, -1,
       startDateOpt, endDateOpt, jobIdentOpt, triggerIdentOpt,
       jobDataMapOpt, triggerDataMapOpt,
@@ -140,7 +151,7 @@ object Squartz {
     jobDataMapOpt: Option[Map[String,Any]] = None,
     triggerDataMapOpt: Option[Map[String,Any]] = None,
     lockFuncOpt: Option[(Long) => Unit] = None
-  ): (Date, (String, String), (String, String)) = {
+  )(implicit squartz: Squartz): (Date, (String, String), (String, String)) = {
     schedSimple(func, repeatInterval, repeatUnit, -1,
       startDateOpt, endDateOpt, jobIdentOpt, triggerIdentOpt,
       jobDataMapOpt, triggerDataMapOpt,
@@ -157,7 +168,7 @@ object Squartz {
     jobDataMapOpt: Option[Map[String,Any]] = None,
     triggerDataMapOpt: Option[Map[String,Any]] = None,
     lockFuncOpt: Option[(Long) => Unit] = None
-  ) = {
+  )(implicit squartz: Squartz) = {
     schedSimple(
       func,
       0,
@@ -186,7 +197,7 @@ object Squartz {
     jobDataMapOpt: Option[Map[String,Any]] = None,
     triggerDataMapOpt: Option[Map[String,Any]] = None,
     lockFuncOpt: Option[(Long) => Unit] = None
-  ): (Date, (String, String), (String, String)) = {
+  )(implicit squartz: Squartz): (Date, (String, String), (String, String)) = {
     val builder = repeatUnit match {
       case SECONDS =>
         if(repeatCount >= 0) {
@@ -246,12 +257,7 @@ object Squartz {
     )
     runBuilder(builder)
   }
-
-  def shutdown { synchronized {
-    scheduler.shutdown
-    scheduler = null
-  }}
-
+  
   private def runBuilder(builder: SquartzBuilder[_]): (Date, (String, String), (String, String)) = {
     val (schedDate, trigger, jobDetailOpt) = builder.sched
     val triggerKey = trigger.getKey
@@ -299,6 +305,28 @@ object Squartz {
   }
 }
 
+class Squartz(
+  scheduler: Scheduler
+){
+
+  def start = { scheduler.start; this; }
+
+  def sched(
+    trigger: Trigger
+  ): Date = {
+    scheduler.scheduleJob(trigger)
+  }
+
+  def sched(
+    jobDetail: JobDetail,
+    trigger: Trigger
+  ): Date = {
+    scheduler.scheduleJob(jobDetail, trigger)
+  }
+
+  def shutdown { scheduler.shutdown; this; }
+}
+
 case class Time
 
 case object SECONDS extends Time
@@ -306,8 +334,6 @@ case object MINUTES extends Time
 case object HOURS extends Time
 
 class ScalaJobFactory extends org.quartz.simpl.PropertySettingJobFactory {
-
-
   override def newJob(bundle: org.quartz.spi.TriggerFiredBundle, scheduler: Scheduler): Job = {
     val jobDetail = bundle.getJobDetail
     if(jobDetail.getJobClass.equals(classOf[ScalaJob])) {

@@ -22,6 +22,7 @@ import org.quartz.JobBuilder._
 import org.quartz.TriggerBuilder._
 
 abstract class SquartzBuilder[T](
+  protected val squartz: Squartz,
   protected val squartzFuncOpt: Option[(JobExecutionContext) => Unit] = None,
   protected val squartzIsLockedFuncOpt: Option[(Long) => Unit] = None
 ) {
@@ -32,6 +33,7 @@ abstract class SquartzBuilder[T](
   val jobBuilderOpt = squartzFuncOpt match {
     case Some(squartzFunc) =>
       val jobDataMap = new JobDataMap()
+      jobDataMap.setAllowsTransientData(true)
       jobDataMap.put("scalaFunc", squartzFunc)
       squartzIsLockedFuncOpt match {
         case Some(squartzIsLockedFunc) =>
@@ -218,9 +220,9 @@ abstract class SquartzBuilder[T](
     jobBuilderOpt match {
       case Some(jobBuilder) =>
         val jobDetail = jobBuilder.build
-        (Squartz.sched(jobDetail, trigger), trigger, Some(jobDetail))
+        (squartz.sched(jobDetail, trigger), trigger, Some(jobDetail))
       case None =>
-        (Squartz.sched(trigger), trigger, None)
+        (squartz.sched(trigger), trigger, None)
     }
   }
 }
