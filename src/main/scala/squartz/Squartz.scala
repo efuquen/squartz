@@ -25,7 +25,7 @@ import org.quartz.impl._
 object Squartz {
   
   case class JdbcConfig(
-      val  name: String,
+      val name: String,
       val driver: String,
       val url: String,
       val user: String,
@@ -35,14 +35,12 @@ object Squartz {
   //can only call once for default scheduler
   def build : Squartz = {
     val scheduler = StdSchedulerFactory.getDefaultScheduler
-    scheduler.setJobFactory(new ScalaJobFactory)
     new Squartz(scheduler)
   }
   
   def build(props: java.util.Properties): Squartz = {
     val schedFact = new StdSchedulerFactory(props)
     val scheduler = schedFact.getScheduler
-    scheduler.setJobFactory(new ScalaJobFactory)
     new Squartz(scheduler)
   }
   
@@ -61,6 +59,11 @@ object Squartz {
         case Some(jdbcConfig) =>
           props.setProperty("org.quartz.jobStore.dataSource", jdbcConfig.name)
           props.setProperty("org.quartz.dataSource.%s.driver".format(jdbcConfig.name), jdbcConfig.driver)
+          jdbcConfig.driver match {
+            case "org.postgresql.Driver" =>
+              props.setProperty("org.quartz.jobStore.driverDelegateClass", "org.quartz.impl.jdbcjobstore.PostgreSQLDelegate")
+            case _ => Unit 
+          }
           props.setProperty("org.quartz.dataSource.%s.URL".format(jdbcConfig.name), jdbcConfig.url)
           props.setProperty("org.quartz.dataSource.%s.user".format(jdbcConfig.name), jdbcConfig.user)
           props.setProperty("org.quartz.dataSource.%s.password".format(jdbcConfig.name), jdbcConfig.password)
@@ -71,44 +74,25 @@ object Squartz {
     build(props)
   }
     
-  def simpleBuilder(
-    func: (JobExecutionContext) => Unit
-  )(implicit squartz: Squartz) = new SquartzSimpleBuilder(func)
+  def simpleBuilder[A <: Job](implicit squartz: Squartz, mA: Manifest[A]) = SquartzSimpleBuilder.build[A]
 
-  def simpleBuilder(
-    func: (JobExecutionContext) => Unit,
-    lockFunc: (Long) => Unit
-  )(implicit squartz: Squartz) = new SquartzSimpleBuilder(func, lockFunc)
-
-  def cronBuilder(
-    func: (JobExecutionContext) => Unit,
+  def cronBuilder[A <: Job](
     cronStr: String
-  )(implicit squartz: Squartz) = new SquartzCronBuilder(cronStr,func)
+  )(implicit squartz: Squartz, mA: Manifest[A]) = SquartzCronBuilder.build[A](cronStr)
 
-  def cronBuilder(
-    func: (JobExecutionContext) => Unit,
-    lockFunc: (Long) => Unit,
-    cronStr: String
-  )(implicit squartz: Squartz) = new SquartzCronBuilder(cronStr,func,lockFunc)
-
-  def schedCron(
-    func: (JobExecutionContext) => Unit,
+  def schedCron[A <: Job](
     cronStr: String,
+    
     startDateOpt: Option[Date] = None,
     endDateOpt: Option[Date] = None,
     jobIdentOpt: Option[(String, Option[String])] = None,
     triggerIdentOpt: Option[(String, Option[String])] = None,
     jobDataMapOpt: Option[Map[String,Any]] = None,
-    triggerDataMapOpt: Option[Map[String,Any]] = None,
-    lockFuncOpt: Option[(Long) => Unit] = None
-  )(implicit squartz: Squartz): (Date, (String,String), (String,String)) = {
+    triggerDataMapOpt: Option[Map[String,Any]] = None
+  )(implicit squartz: Squartz, mA: Manifest[A]): (Date, (String,String), (String,String)) = {
 
-    val builder = lockFuncOpt match {
-      case Some(lockFunc) =>
-        cronBuilder(func, lockFunc, cronStr)
-      case None =>
-        cronBuilder(func, cronStr)
-    }
+    val builder = cronBuilder[A](cronStr)
+    
     configureBuilder( 
       builder,
       startDateOpt, endDateOpt,
@@ -118,9 +102,7 @@ object Squartz {
     runBuilder(builder)
   }
 
-  def schedSimpleForeverExclusive(
-    func: (JobExecutionContext) => Unit,
-    lockFunc: (Long) => Unit,
+  def schedSimpleForeverExclusive[A <: Job](
     repeatInterval: Int,
     repeatUnit: Time,
 
@@ -129,18 +111,15 @@ object Squartz {
     jobIdentOpt: Option[(String, Option[String])] = None,
     triggerIdentOpt: Option[(String, Option[String])] = None,
     jobDataMapOpt: Option[Map[String,Any]] = None,
-    triggerDataMapOpt: Option[Map[String,Any]] = None,
-    lockFuncOpt: Option[(Long) => Unit] = None
-  )(implicit squartz: Squartz): (Date, (String, String), (String, String)) = {
-    schedSimple(func, repeatInterval, repeatUnit, -1,
+    triggerDataMapOpt: Option[Map[String,Any]] = None
+  )(implicit squartz: Squartz, mA: Manifest[A]): (Date, (String, String), (String, String)) = {
+    schedSimple[A](repeatInterval, repeatUnit, -1,
       startDateOpt, endDateOpt, jobIdentOpt, triggerIdentOpt,
-      jobDataMapOpt, triggerDataMapOpt,
-      Some(lockFunc)
+      jobDataMapOpt, triggerDataMapOpt
     )
   }
 
   def schedSimpleForever(
-    func: (JobExecutionContext) => Unit,
     repeatInterval: Int,
     repeatUnit: Time,
 
@@ -149,28 +128,23 @@ object Squartz {
     jobIdentOpt: Option[(String, Option[String])] = None,
     triggerIdentOpt: Option[(String, Option[String])] = None,
     jobDataMapOpt: Option[Map[String,Any]] = None,
-    triggerDataMapOpt: Option[Map[String,Any]] = None,
-    lockFuncOpt: Option[(Long) => Unit] = None
+    triggerDataMapOpt: Option[Map[String,Any]] = None
   )(implicit squartz: Squartz): (Date, (String, String), (String, String)) = {
-    schedSimple(func, repeatInterval, repeatUnit, -1,
+    schedSimple(repeatInterval, repeatUnit, -1,
       startDateOpt, endDateOpt, jobIdentOpt, triggerIdentOpt,
-      jobDataMapOpt, triggerDataMapOpt,
-      lockFuncOpt
+      jobDataMapOpt, triggerDataMapOpt
     )
   }
 
-  def schedSimpleOnce(
-    func: (JobExecutionContext) => Unit,
+  def schedSimpleOnce[A <: Job](
     date: Date,
 
     jobIdentOpt: Option[(String, Option[String])] = None,
     triggerIdentOpt: Option[(String, Option[String])] = None,
     jobDataMapOpt: Option[Map[String,Any]] = None,
-    triggerDataMapOpt: Option[Map[String,Any]] = None,
-    lockFuncOpt: Option[(Long) => Unit] = None
-  )(implicit squartz: Squartz) = {
-    schedSimple(
-      func,
+    triggerDataMapOpt: Option[Map[String,Any]] = None
+  )(implicit squartz: Squartz, mA: Manifest[A]) = {
+    schedSimple[A](
       0,
       SECONDS,
       1,
@@ -179,13 +153,11 @@ object Squartz {
       jobIdentOpt,
       triggerIdentOpt,
       jobDataMapOpt,
-      triggerDataMapOpt,
-      lockFuncOpt
+      triggerDataMapOpt
     )
   }
 
-  def schedSimple(
-    func: (JobExecutionContext) => Unit,
+  def schedSimple[A <: Job](
     repeatInterval: Int,
     repeatUnit: Time,
     repeatCount: Int,
@@ -195,57 +167,26 @@ object Squartz {
     jobIdentOpt: Option[(String, Option[String])] = None,
     triggerIdentOpt: Option[(String, Option[String])] = None,
     jobDataMapOpt: Option[Map[String,Any]] = None,
-    triggerDataMapOpt: Option[Map[String,Any]] = None,
-    lockFuncOpt: Option[(Long) => Unit] = None
-  )(implicit squartz: Squartz): (Date, (String, String), (String, String)) = {
+    triggerDataMapOpt: Option[Map[String,Any]] = None
+  )(implicit squartz: Squartz, mA: Manifest[A]): (Date, (String, String), (String, String)) = {
     val builder = repeatUnit match {
       case SECONDS =>
         if(repeatCount >= 0) {
-          lockFuncOpt match {
-            case Some(lockFunc) =>
-              SquartzSimpleBuilder.repeatSecondlyForTotalCount(repeatCount, repeatInterval, func, lockFunc)
-            case None =>
-              SquartzSimpleBuilder.repeatSecondlyForTotalCount(repeatCount, repeatInterval, func)
-          }
+          SquartzSimpleBuilder.repeatSecondlyForTotalCount[A](repeatCount, repeatInterval)
         } else {
-          lockFuncOpt match {
-            case Some(lockFunc) =>
-              SquartzSimpleBuilder.repeatSecondlyForever(repeatInterval, func, lockFunc)
-            case None =>
-              SquartzSimpleBuilder.repeatSecondlyForever(repeatInterval, func)
-          }
+          SquartzSimpleBuilder.repeatSecondlyForever[A](repeatInterval)
         }
       case MINUTES =>
         if(repeatCount >= 0) {
-          lockFuncOpt match {
-            case Some(lockFunc) =>
-              SquartzSimpleBuilder.repeatMinutelyForTotalCount(repeatCount, repeatInterval, func, lockFunc)
-            case None =>
-              SquartzSimpleBuilder.repeatMinutelyForTotalCount(repeatCount, repeatInterval, func)
-          }
+          SquartzSimpleBuilder.repeatMinutelyForTotalCount[A](repeatCount, repeatInterval)
         } else {
-          lockFuncOpt match {
-            case Some(lockFunc) =>
-              SquartzSimpleBuilder.repeatMinutelyForever(repeatInterval, func, lockFunc)
-            case None =>
-              SquartzSimpleBuilder.repeatMinutelyForever(repeatInterval, func)
-          }
+          SquartzSimpleBuilder.repeatMinutelyForever[A](repeatInterval)
         }
       case HOURS =>
         if(repeatCount >= 0) {
-          lockFuncOpt match {
-            case Some(lockFunc) =>
-              SquartzSimpleBuilder.repeatHourlyForTotalCount(repeatCount, repeatInterval, func, lockFunc)
-            case None =>
-              SquartzSimpleBuilder.repeatHourlyForTotalCount(repeatCount, repeatInterval, func)
-          }
+          SquartzSimpleBuilder.repeatHourlyForTotalCount[A](repeatCount, repeatInterval)
         } else {
-          lockFuncOpt match {
-            case Some(lockFunc) =>
-              SquartzSimpleBuilder.repeatHourlyForever(repeatInterval, func, lockFunc)
-            case None =>
-              SquartzSimpleBuilder.repeatHourlyForever(repeatInterval, func)
-          }
+          SquartzSimpleBuilder.repeatHourlyForever[A](repeatInterval)
         }
     }
 
@@ -258,7 +199,7 @@ object Squartz {
     runBuilder(builder)
   }
   
-  private def runBuilder(builder: SquartzBuilder[_]): (Date, (String, String), (String, String)) = {
+  private def runBuilder(builder: SquartzBuilder[_,_]): (Date, (String, String), (String, String)) = {
     val (schedDate, trigger, jobDetailOpt) = builder.sched
     val triggerKey = trigger.getKey
     val jobKey = trigger.getKey
@@ -267,7 +208,7 @@ object Squartz {
   }
 
   private def configureBuilder(
-    builder: SquartzBuilder[_],
+    builder: SquartzBuilder[_,_],
     startDateOpt: Option[Date] = None,
     endDateOpt: Option[Date] = None,
     jobIdentOpt: Option[(String, Option[String])] = None,
@@ -323,6 +264,15 @@ class Squartz(
   ): Date = {
     scheduler.scheduleJob(jobDetail, trigger)
   }
+  
+  def getJobDetail(jobName: String, jobGroup: String): Option[JobDetail] = {
+    val jobDetail = scheduler.getJobDetail(new JobKey(jobName, jobGroup))
+    if(jobDetail != null) {
+      Some(jobDetail) 
+    } else {
+      None 
+    }
+  }
 
   def shutdown { scheduler.shutdown; this; }
 }
@@ -333,76 +283,6 @@ case object SECONDS extends Time
 case object MINUTES extends Time
 case object HOURS extends Time
 
-class ScalaJobFactory extends org.quartz.simpl.PropertySettingJobFactory {
-  override def newJob(bundle: org.quartz.spi.TriggerFiredBundle, scheduler: Scheduler): Job = {
-    val jobDetail = bundle.getJobDetail
-    if(jobDetail.getJobClass.equals(classOf[ScalaJob])) {
-      val func = bundle.getJobDetail.getJobDataMap.get("scalaFunc").asInstanceOf[Function1[JobExecutionContext,Unit]]
-      new ScalaJob(func)
-    } else if(jobDetail.getJobClass.equals(classOf[ScalaJobExclusive])) {
-      val func = bundle.getJobDetail.getJobDataMap.get("scalaFunc").asInstanceOf[Function1[JobExecutionContext,Unit]]
-      val isLockedFunc = bundle.getJobDetail.getJobDataMap.get("scalaFuncIsLocked").asInstanceOf[Function1[Long,Unit]]
-      new ScalaJobExclusive(
-        func,
-        isLockedFunc
-      )
-    } else {
-      super.newJob(bundle, scheduler)
-    }
-  }
-}
-
-class ScalaJob(
-  func: (JobExecutionContext) => Unit
-) extends Job {
-  override def execute(context: JobExecutionContext) {
-    func(context)
-  }
-}
-
-object ScalaJobExclusive {
-  protected val locks = scala.collection.mutable.Map[String,(ReentrantLock, Long)]()
-}
-
-class ScalaJobExclusive(
-  func: (JobExecutionContext) => Unit,
-  lockedFunc: (Long) => Unit
-) extends Job {
-
-  import ScalaJobExclusive._
-
-  override def execute(context: JobExecutionContext) {
-    val jobKey = context.getJobDetail.getKey
-    val lockKey = jobKey.getName.toLowerCase + "." + jobKey.getGroup.toLowerCase
-
-    val (lockOpt, lockedSince) = locks.synchronized {
-      if(locks.contains(lockKey)) {
-        val (lock, lockedSince) = locks(lockKey)
-        if(lock.tryLock) {
-          val newLockedSince = System.currentTimeMillis
-          locks += lockKey -> (lock, newLockedSince)
-          (Some(lock), newLockedSince)
-        } else {
-          (None, lockedSince)
-        }
-      } else {
-        val lock = new ReentrantLock
-        lock.lock
-        val lockedSince = System.currentTimeMillis
-        locks += lockKey -> (lock, lockedSince)
-        (Some(lock), lockedSince)
-      }
-    }
-
-    lockOpt match {
-      case Some(lock) =>
-        try {
-          func(context)
-        } finally {
-          lock.unlock
-        }
-      case None =>
-        lockedFunc(lockedSince)
-    }
-  }
+class NoJob extends Job {
+   override def execute(context: JobExecutionContext){ }
 }

@@ -21,29 +21,21 @@ import org.quartz._
 import org.quartz.JobBuilder._
 import org.quartz.TriggerBuilder._
 
-abstract class SquartzBuilder[T](
-  protected val squartz: Squartz,
-  protected val squartzFuncOpt: Option[(JobExecutionContext) => Unit] = None,
-  protected val squartzIsLockedFuncOpt: Option[(Long) => Unit] = None
-) {
+abstract class SquartzBuilder[T, U <: Job](
+  private val squartz: Squartz
+)(implicit mT: Manifest[T], mU: Manifest[U]) {
 
   //Allows building with JobDetail
   //If not specified will only allow trigger to be configured
   //and passed in for scheduling
-  val jobBuilderOpt = squartzFuncOpt match {
-    case Some(squartzFunc) =>
-      val jobDataMap = new JobDataMap()
-      jobDataMap.setAllowsTransientData(true)
-      jobDataMap.put("scalaFunc", squartzFunc)
-      squartzIsLockedFuncOpt match {
-        case Some(squartzIsLockedFunc) =>
-          jobDataMap.put("scalaFuncIsLocked", squartzIsLockedFunc)
-          Some(newJob(classOf[ScalaJobExclusive]).usingJobData(jobDataMap))
-        case None =>
-          Some(newJob(classOf[ScalaJob]).usingJobData(jobDataMap))
-      }
-    case None => None
-  }
+  val jobBuilderOpt: Option[JobBuilder] = {
+    mU.erasure.toString match {
+      case "squartz.NoJob" =>
+        None 
+      case jobClassName =>
+        Some(newJob(mU.erasure.asInstanceOf[Class[U]]))
+    }
+  } 
 
   val triggerBuilder = newTrigger
 
@@ -219,7 +211,7 @@ abstract class SquartzBuilder[T](
     val trigger = triggerBuilder.build
     jobBuilderOpt match {
       case Some(jobBuilder) =>
-        val jobDetail = jobBuilder.build
+        val jobDetail = jobBuilder.build 
         (squartz.sched(jobDetail, trigger), trigger, Some(jobDetail))
       case None =>
         (squartz.sched(trigger), trigger, None)

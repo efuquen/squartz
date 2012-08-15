@@ -20,288 +20,177 @@ import java.util.Date
 import org.quartz._
 
 object SquartzSimpleBuilder {
-  def repeatHourlyForever()(implicit squartz: Squartz) = new SquartzSimpleBuilder(
-    SimpleScheduleBuilder.repeatHourlyForever,
-    None
+  
+  def build[A <: Job]()(implicit squartz: Squartz, mA: Manifest[A]) = new SquartzSimpleBuilder[A](SimpleScheduleBuilder.simpleSchedule)
+  
+  def repeatHourlyForever()(implicit squartz: Squartz) = new SquartzSimpleBuilder[NoJob](
+    SimpleScheduleBuilder.repeatHourlyForever
   )
 
-  def repeatHourlyForever(squartzFunc: (JobExecutionContext) => Unit)(implicit squartz: Squartz) = new SquartzSimpleBuilder(
-    SimpleScheduleBuilder.repeatHourlyForever,
-    Some(squartzFunc)
-  )
-
-  def repeatHourlyForever(squartzFunc: (JobExecutionContext) => Unit, lockFunc: (Long) => Unit)
-    (implicit squartz: Squartz) = new SquartzSimpleBuilder(
-	    SimpleScheduleBuilder.repeatHourlyForever,
-	    Some(squartzFunc),
-	    Some(lockFunc)
+  def repeatHourlyForever[A <: Job](implicit squartz: Squartz, mA: Manifest[A]) = new SquartzSimpleBuilder[A](
+    SimpleScheduleBuilder.repeatHourlyForever
   )
 
   def repeatHourlyForever(hours: Int)(implicit squartz: Squartz) = new SquartzSimpleBuilder(
-    SimpleScheduleBuilder.repeatHourlyForever(hours),
-    None
+    SimpleScheduleBuilder.repeatHourlyForever(hours)
   )
 
-  def repeatHourlyForever(hours: Int, squartzFunc: (JobExecutionContext) => Unit)(implicit squartz: Squartz) = new SquartzSimpleBuilder(
-    SimpleScheduleBuilder.repeatHourlyForever(hours),
-    Some(squartzFunc)
+  def repeatHourlyForever[A <: Job](hours: Int)(implicit squartz: Squartz, mA: Manifest[A]) = new SquartzSimpleBuilder[A](
+    SimpleScheduleBuilder.repeatHourlyForever(hours)
   )
 
-  def repeatHourlyForever(hours: Int, squartzFunc: (JobExecutionContext) => Unit, lockFunc: (Long) => Unit)
-    (implicit squartz: Squartz) = new SquartzSimpleBuilder(
-	    SimpleScheduleBuilder.repeatHourlyForever(hours),
-	    Some(squartzFunc),
-	    Some(lockFunc)
+  def repeatHourlyForTotalCount(count: Int)(implicit squartz: Squartz) = new SquartzSimpleBuilder[NoJob](
+    SimpleScheduleBuilder.repeatHourlyForTotalCount(count)
   )
 
-  def repeatHourlyForTotalCount(count: Int)(implicit squartz: Squartz) = new SquartzSimpleBuilder(
-    SimpleScheduleBuilder.repeatHourlyForTotalCount(count),
-    None
+  def repeatHourlyForTotalCount[A <: Job](count: Int)(implicit squartz: Squartz, mA: Manifest[A]) = new SquartzSimpleBuilder[A](
+    SimpleScheduleBuilder.repeatHourlyForTotalCount(count)
   )
 
-  def repeatHourlyForTotalCount(count: Int, squartzFunc: (JobExecutionContext) => Unit)(implicit squartz: Squartz) = new SquartzSimpleBuilder(
-    SimpleScheduleBuilder.repeatHourlyForTotalCount(count),
-    Some(squartzFunc)
+  def repeatHourlyForTotalCount(count: Int, hours: Int)(implicit squartz: Squartz) = new SquartzSimpleBuilder[NoJob](
+    SimpleScheduleBuilder.repeatHourlyForTotalCount(count, hours)
   )
 
-  def repeatHourlyForTotalCount(count: Int, squartzFunc: (JobExecutionContext) => Unit, lockFunc: (Long) => Unit)
-    (implicit squartz: Squartz) = new SquartzSimpleBuilder(
-	    SimpleScheduleBuilder.repeatHourlyForTotalCount(count),
-	    Some(squartzFunc),
-	    Some(lockFunc)
-  )
-
-  def repeatHourlyForTotalCount(count: Int, hours: Int)(implicit squartz: Squartz) = new SquartzSimpleBuilder(
-    SimpleScheduleBuilder.repeatHourlyForTotalCount(count, hours),
-    None
-  )
-
-  def repeatHourlyForTotalCount(count: Int, hours: Int, squartzFunc: (JobExecutionContext) => Unit)
-    (implicit squartz: Squartz) = new SquartzSimpleBuilder(
-	    SimpleScheduleBuilder.repeatHourlyForTotalCount(count, hours),
-	    Some(squartzFunc)
-  )
-
-  def repeatHourlyForTotalCount(count: Int, hours: Int, squartzFunc: (JobExecutionContext) => Unit, lockFunc: (Long) => Unit)
-    (implicit squartz: Squartz) = new SquartzSimpleBuilder(
-	    SimpleScheduleBuilder.repeatHourlyForTotalCount(count, hours),
-	    Some(squartzFunc),
-	    Some(lockFunc)
+  def repeatHourlyForTotalCount[A <: Job](count: Int, hours: Int)
+    (implicit squartz: Squartz, mA: Manifest[A]) = new SquartzSimpleBuilder[A](
+	    SimpleScheduleBuilder.repeatHourlyForTotalCount(count, hours)
   )
 
   def repeatMinutelyForever()(implicit squartz: Squartz) = new SquartzSimpleBuilder(
-    SimpleScheduleBuilder.repeatMinutelyForever,
-    None
+    SimpleScheduleBuilder.repeatMinutelyForever
   )
 
-  def repeatMinutelyForever(squartzFunc: (JobExecutionContext) => Unit)(implicit squartz: Squartz) = new SquartzSimpleBuilder(
-    SimpleScheduleBuilder.repeatMinutelyForever,
-    Some(squartzFunc)
-  )
-
-  def repeatMinutelyForever(squartzFunc: (JobExecutionContext) => Unit, lockFunc: (Long) => Unit)
-    (implicit squartz: Squartz) = new SquartzSimpleBuilder(
-	    SimpleScheduleBuilder.repeatMinutelyForever,
-	    Some(squartzFunc),
-	    Some(lockFunc)
+  def repeatMinutelyForever[A <: Job]()(implicit squartz: Squartz, mA: Manifest[A]) = new SquartzSimpleBuilder[A](
+    SimpleScheduleBuilder.repeatMinutelyForever
   )
 
   def repeatMinutelyForever(minutes: Int)(implicit squartz: Squartz) = new SquartzSimpleBuilder(
-    SimpleScheduleBuilder.repeatMinutelyForever(minutes),
-    None
+    SimpleScheduleBuilder.repeatMinutelyForever(minutes)
   )
 
-  def repeatMinutelyForever(minutes: Int, squartzFunc: (JobExecutionContext) => Unit)
-    (implicit squartz: Squartz) = new SquartzSimpleBuilder(
-	    SimpleScheduleBuilder.repeatMinutelyForever(minutes),
-	    Some(squartzFunc)
-  )
-
-  def repeatMinutelyForever(minutes: Int, squartzFunc: (JobExecutionContext) => Unit, lockFunc: (Long) => Unit)
-    (implicit squartz: Squartz) = new SquartzSimpleBuilder(
-	    SimpleScheduleBuilder.repeatMinutelyForever(minutes),
-	    Some(squartzFunc),
-	    Some(lockFunc)
+  def repeatMinutelyForever[A <: Job](minutes: Int)
+    (implicit squartz: Squartz, mA: Manifest[A]) = new SquartzSimpleBuilder[A](
+	    SimpleScheduleBuilder.repeatMinutelyForever(minutes)
   )
 
   def repeatMinutelyForTotalCount(count: Int)
-    (implicit squartz: Squartz) = new SquartzSimpleBuilder(
-	  SimpleScheduleBuilder.repeatMinutelyForTotalCount(count),
-	  None
+    (implicit squartz: Squartz) = new SquartzSimpleBuilder[NoJob](
+  	  SimpleScheduleBuilder.repeatMinutelyForTotalCount(count)
   )
 
-  def repeatMinutelyForTotalCount(count: Int, squartzFunc: (JobExecutionContext) => Unit)
-    (implicit squartz: Squartz)= new SquartzSimpleBuilder(
-  	  SimpleScheduleBuilder.repeatMinutelyForTotalCount(count),
-  	  Some(squartzFunc)
+  def repeatMinutelyForTotalCount[A <: Job](count: Int)
+    (implicit squartz: Squartz, mA: Manifest[A])= new SquartzSimpleBuilder[A](
+  	  SimpleScheduleBuilder.repeatMinutelyForTotalCount(count)
   )
 
-  def repeatMinutelyForTotalCount(count: Int, squartzFunc: (JobExecutionContext) => Unit, lockFunc: (Long) => Unit)
-    (implicit squartz: Squartz)= new SquartzSimpleBuilder(
-      SimpleScheduleBuilder.repeatMinutelyForTotalCount(count),
-      Some(squartzFunc),
-      Some(lockFunc)
-  )
-  
-  def repeatMinutelyForTotalCount(count: Int, minutes: Int)(implicit squartz: Squartz) = new SquartzSimpleBuilder(
-    SimpleScheduleBuilder.repeatMinutelyForTotalCount(count, minutes),
-    None
+  def repeatMinutelyForTotalCount(count: Int, minutes: Int)(implicit squartz: Squartz) = new SquartzSimpleBuilder[NoJob](
+    SimpleScheduleBuilder.repeatMinutelyForTotalCount(count, minutes)
   )
 
-  def repeatMinutelyForTotalCount(count: Int, minutes: Int, squartzFunc: (JobExecutionContext) => Unit)
-    (implicit squartz: Squartz) = new SquartzSimpleBuilder(
-      SimpleScheduleBuilder.repeatMinutelyForTotalCount(count, minutes),
-      Some(squartzFunc)
+  def repeatMinutelyForTotalCount[A <: Job](count: Int, minutes: Int)
+    (implicit squartz: Squartz, mA: Manifest[A]) = new SquartzSimpleBuilder[A](
+      SimpleScheduleBuilder.repeatMinutelyForTotalCount(count, minutes)
   )
 
-  def repeatMinutelyForTotalCount(count: Int, minutes: Int, squartzFunc: (JobExecutionContext) => Unit, lockFunc: (Long) => Unit)
-    (implicit squartz: Squartz) = new SquartzSimpleBuilder(
-      SimpleScheduleBuilder.repeatMinutelyForTotalCount(count, minutes),
-      Some(squartzFunc),
-      Some(lockFunc)
+  def repeatSecondlyForever()(implicit squartz: Squartz) = new SquartzSimpleBuilder[NoJob](
+    SimpleScheduleBuilder.repeatSecondlyForever
   )
 
-  def repeatSecondlyForever()(implicit squartz: Squartz) = new SquartzSimpleBuilder(
-    SimpleScheduleBuilder.repeatSecondlyForever,
-    None
+  def repeatSecondlyForever[A <: Job]() (implicit squartz: Squartz, mA: Manifest[A]) = new SquartzSimpleBuilder[A](
+    SimpleScheduleBuilder.repeatSecondlyForever
   )
 
-  def repeatSecondlyForever(squartzFunc: (JobExecutionContext) => Unit) (implicit squartz: Squartz) = new SquartzSimpleBuilder(
-    SimpleScheduleBuilder.repeatSecondlyForever,
-    Some(squartzFunc)
+  def repeatSecondlyForever(seconds: Int) (implicit squartz: Squartz) = new SquartzSimpleBuilder[NoJob](
+    SimpleScheduleBuilder.repeatSecondlyForever(seconds)
   )
 
-  def repeatSecondlyForever(squartzFunc: (JobExecutionContext) => Unit, lockFunc: (Long) => Unit)
-    (implicit squartz: Squartz) = new SquartzSimpleBuilder(
-      SimpleScheduleBuilder.repeatSecondlyForever,
-      Some(squartzFunc),
-      Some(lockFunc)
+  def repeatSecondlyForever[A <: Job](seconds: Int) 
+    (implicit squartz: Squartz, mA: Manifest[A]) = new SquartzSimpleBuilder[A](
+      SimpleScheduleBuilder.repeatSecondlyForever(seconds)
   )
 
-  def repeatSecondlyForever(seconds: Int) (implicit squartz: Squartz) = new SquartzSimpleBuilder(
-    SimpleScheduleBuilder.repeatSecondlyForever(seconds),
-    None
+  def repeatSecondlyForTotalCount(count: Int)(implicit squartz: Squartz) = new SquartzSimpleBuilder[NoJob](
+    SimpleScheduleBuilder.repeatSecondlyForTotalCount(count)
   )
 
-  def repeatSecondlyForever(seconds: Int, squartzFunc: (JobExecutionContext) => Unit) 
-    (implicit squartz: Squartz) = new SquartzSimpleBuilder(
-      SimpleScheduleBuilder.repeatSecondlyForever(seconds),
-      Some(squartzFunc)
+  def repeatSecondlyForTotalCount[A <: Job](count: Int)
+    (implicit squartz: Squartz, mA: Manifest[A]) = new SquartzSimpleBuilder[A](
+      SimpleScheduleBuilder.repeatSecondlyForTotalCount(count)
   )
 
-  def repeatSecondlyForever(seconds: Int, squartzFunc: (JobExecutionContext) => Unit, lockFunc: (Long) => Unit)
-    (implicit squartz: Squartz)= new SquartzSimpleBuilder(
-      SimpleScheduleBuilder.repeatSecondlyForever(seconds),
-      Some(squartzFunc),
-      Some(lockFunc)
+  def repeatSecondlyForTotalCount(count: Int, seconds: Int)(implicit squartz: Squartz) = new SquartzSimpleBuilder[NoJob](
+    SimpleScheduleBuilder.repeatSecondlyForTotalCount(count, seconds)
   )
 
-  def repeatSecondlyForTotalCount(count: Int)(implicit squartz: Squartz) = new SquartzSimpleBuilder(
-    SimpleScheduleBuilder.repeatSecondlyForTotalCount(count),
-    None
-  )
-
-  def repeatSecondlyForTotalCount(count: Int, squartzFunc: (JobExecutionContext) => Unit)
-    (implicit squartz: Squartz) = new SquartzSimpleBuilder(
-      SimpleScheduleBuilder.repeatSecondlyForTotalCount(count),
-      Some(squartzFunc)
-  )
-
-  def repeatSecondlyForTotalCount(count: Int, squartzFunc: (JobExecutionContext) => Unit, lockFunc: (Long) => Unit) 
-    (implicit squartz: Squartz) = new SquartzSimpleBuilder(
-      SimpleScheduleBuilder.repeatSecondlyForTotalCount(count),
-      Some(squartzFunc),
-      Some(lockFunc)
-   )
-
-  def repeatSecondlyForTotalCount(count: Int, seconds: Int)(implicit squartz: Squartz) = new SquartzSimpleBuilder(
-    SimpleScheduleBuilder.repeatSecondlyForTotalCount(count, seconds),
-    None
-  )
-
-  def repeatSecondlyForTotalCount(count: Int, seconds: Int, squartzFunc: (JobExecutionContext) => Unit) 
-  	(implicit squartz: Squartz) = new SquartzSimpleBuilder(
-	    SimpleScheduleBuilder.repeatSecondlyForTotalCount(count, seconds),
-	    Some(squartzFunc)
-  )
-
-  def repeatSecondlyForTotalCount(count: Int, seconds: Int, squartzFunc: (JobExecutionContext) => Unit, lockFunc: (Long) => Unit) 
-  	(implicit squartz: Squartz) = new SquartzSimpleBuilder(
-	    SimpleScheduleBuilder.repeatSecondlyForTotalCount(count, seconds),
-	    Some(squartzFunc),
-	    Some(lockFunc)
+  def repeatSecondlyForTotalCount[A <: Job](count: Int, seconds: Int) 
+  	(implicit squartz: Squartz, mA: Manifest[A]) = new SquartzSimpleBuilder[A](
+	    SimpleScheduleBuilder.repeatSecondlyForTotalCount(count, seconds)
   )
 }
 
-class SquartzSimpleBuilder(
-  scheduleBuilder: SimpleScheduleBuilder,
-  squartzFuncOpt: Option[(JobExecutionContext) => Unit] = None,
-  squartzLockFuncOpt: Option[(Long) => Unit] = None
-)(implicit squartz: Squartz) extends SquartzBuilder[SquartzSimpleBuilder](squartz, squartzFuncOpt, squartzLockFuncOpt) {
+class SquartzSimpleBuilder[A <: Job](
+  scheduleBuilder: SimpleScheduleBuilder
+)(implicit squartz: Squartz, mA: Manifest[A]) extends SquartzBuilder[SquartzSimpleBuilder[A], A](squartz) {
 
-  def this()(implicit squartz: Squartz) = this(SimpleScheduleBuilder.simpleSchedule)
-  def this(squartzFunc: (JobExecutionContext) => Unit)(implicit squartz: Squartz) = this(SimpleScheduleBuilder.simpleSchedule, Some(squartzFunc))
-  def this(
-    squartzFunc: (JobExecutionContext) => Unit,
-    squartzLockFunc: (Long) => Unit
-  )(implicit squartz: Squartz) = this(SimpleScheduleBuilder.simpleSchedule, Some(squartzFunc), Some(squartzLockFunc))
+  /*def this[A <: Job]()(implicit squartz: Squartz) = this[A](SimpleScheduleBuilder.simpleSchedule)
+  def this(squartzJob: Job)(implicit squartz: Squartz) = this(SimpleScheduleBuilder.simpleSchedule, Some(squartzJob))*/
 
-  def scheduleRepeatForever: SquartzSimpleBuilder = {
+  def scheduleRepeatForever: SquartzSimpleBuilder[A] = {
     scheduleBuilder.repeatForever
     this
   }
 
-  def scheduleWithIntervalInHours(intervalHours: Int): SquartzSimpleBuilder = {
+  def scheduleWithIntervalInHours(intervalHours: Int): SquartzSimpleBuilder[A] = {
     scheduleBuilder.withIntervalInHours(intervalHours)
     this
   }
 
-  def scheduleWithIntervalInMilliseconds(intervalInMillis: Long): SquartzSimpleBuilder = {
+  def scheduleWithIntervalInMilliseconds(intervalInMillis: Long): SquartzSimpleBuilder[A] = {
     scheduleBuilder.withIntervalInMilliseconds(intervalInMillis)
     this
   }
 
-  def scheduleWithIntervalInMinutes(intervalInMinutes: Int): SquartzSimpleBuilder = {
+  def scheduleWithIntervalInMinutes(intervalInMinutes: Int): SquartzSimpleBuilder[A] = {
     scheduleBuilder.withIntervalInMinutes(intervalInMinutes)
     this
   }
 
-  def scheduleWithIntervalInSeconds(intervalInSeconds: Int): SquartzSimpleBuilder = {
+  def scheduleWithIntervalInSeconds(intervalInSeconds: Int): SquartzSimpleBuilder[A] = {
     scheduleBuilder.withIntervalInSeconds(intervalInSeconds)
     this
   }
 
-  def scheduleWithMisfireHandlingInstructionFireNow: SquartzSimpleBuilder = {
+  def scheduleWithMisfireHandlingInstructionFireNow: SquartzSimpleBuilder[A] = {
     scheduleBuilder.withMisfireHandlingInstructionFireNow
     this
   }
 
-  def scheduleWithMisfireHandlingInstructionIgnoreMisfires: SquartzSimpleBuilder = {
+  def scheduleWithMisfireHandlingInstructionIgnoreMisfires: SquartzSimpleBuilder[A] = {
     scheduleBuilder.withMisfireHandlingInstructionIgnoreMisfires
     this
   }
 
-  def scheduleWithMisfireHandlingInstructionNextWithExistingCount: SquartzSimpleBuilder = {
+  def scheduleWithMisfireHandlingInstructionNextWithExistingCount: SquartzSimpleBuilder[A] = {
     scheduleBuilder.withMisfireHandlingInstructionNextWithExistingCount
     this
   }
 
-  def scheduleWithMisfireHandlingInstructionNextWithRemainingCount: SquartzSimpleBuilder = {
+  def scheduleWithMisfireHandlingInstructionNextWithRemainingCount: SquartzSimpleBuilder[A] = {
     scheduleBuilder.withMisfireHandlingInstructionNextWithRemainingCount
     this
   }
 
-  def scheduleWithMisfireHandlingInstructionNowWithExistingCount: SquartzSimpleBuilder = {
+  def scheduleWithMisfireHandlingInstructionNowWithExistingCount: SquartzSimpleBuilder[A] = {
     scheduleBuilder.withMisfireHandlingInstructionNowWithExistingCount
     this
   }
 
-  def scheduleWithMisfireHandlingInstructionNowWithRemainingCount: SquartzSimpleBuilder = {
+  def scheduleWithMisfireHandlingInstructionNowWithRemainingCount: SquartzSimpleBuilder[A] = {
     scheduleBuilder.withMisfireHandlingInstructionNowWithRemainingCount
     this
   }
 
-  def scheduleWithRepeatCount(triggerRepeatCount: Int): SquartzSimpleBuilder = {
+  def scheduleWithRepeatCount(triggerRepeatCount: Int): SquartzSimpleBuilder[A] = {
     scheduleBuilder.withRepeatCount(triggerRepeatCount)
     this
   }
