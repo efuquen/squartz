@@ -1,3 +1,11 @@
+name := "squartz"
+
+version := "1.0-SNAPSHOT"
+
+scalaVersion := "2.9.1"
+
+organization := "squartz"
+
 parallelExecution in Test := false
 
 resolvers += "Codahale Repo" at "http://repo.codahale.com"
