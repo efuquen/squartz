@@ -274,6 +274,9 @@ class Squartz(
     }
   }
 
+  def deleteJob(jobName: String, jobGroup: String): Boolean =
+    scheduler.deleteJob(new JobKey(jobName, jobGroup))
+
   def shutdown { scheduler.shutdown; this; }
 }
 
