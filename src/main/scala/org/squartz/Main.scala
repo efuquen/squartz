@@ -1,4 +1,4 @@
-package squartz
+package org.squartz
 
 import Squartz._
 
