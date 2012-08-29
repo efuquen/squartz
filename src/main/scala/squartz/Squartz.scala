@@ -19,6 +19,8 @@ import java.util.Date
 
 import java.util.concurrent.locks.ReentrantLock
 
+import com.codahale.jerkson.Json
+
 import org.quartz._
 import org.quartz.impl._
 
@@ -119,7 +121,25 @@ object Squartz {
     )
   }
 
-  def schedSimpleForever(
+  def schedSimpleForeverJson[A <: Job](
+    repeatInterval: Int,
+    repeatUnit: Time,
+    jsonStr: String,
+
+    startDateOpt: Option[Date] = None,
+    endDateOpt: Option[Date] = None,
+    jobIdentOpt: Option[(String, Option[String])] = None,
+    triggerIdentOpt: Option[(String, Option[String])] = None,
+    triggerDataMapOpt: Option[Map[String,Any]] = None
+  )(implicit squartz: Squartz, mA: Manifest[A]): (Date, (String, String), (String, String)) = {
+    schedSimpleForever(
+      repeatInterval, repeatUnit,
+      startDateOpt, endDateOpt, jobIdentOpt, triggerIdentOpt,
+      Some(Json.parse[Map[String,Any]](jsonStr)), triggerDataMapOpt
+    )
+  }
+
+  def schedSimpleForever[A <: Job](
     repeatInterval: Int,
     repeatUnit: Time,
 
@@ -129,7 +149,7 @@ object Squartz {
     triggerIdentOpt: Option[(String, Option[String])] = None,
     jobDataMapOpt: Option[Map[String,Any]] = None,
     triggerDataMapOpt: Option[Map[String,Any]] = None
-  )(implicit squartz: Squartz): (Date, (String, String), (String, String)) = {
+  )(implicit squartz: Squartz, mA: Manifest[A]): (Date, (String, String), (String, String)) = {
     schedSimple(repeatInterval, repeatUnit, -1,
       startDateOpt, endDateOpt, jobIdentOpt, triggerIdentOpt,
       jobDataMapOpt, triggerDataMapOpt
@@ -202,7 +222,7 @@ object Squartz {
   private def runBuilder(builder: SquartzBuilder[_,_]): (Date, (String, String), (String, String)) = {
     val (schedDate, trigger, jobDetailOpt) = builder.sched
     val triggerKey = trigger.getKey
-    val jobKey = trigger.getKey
+    val jobKey = trigger.getJobKey
 
     (schedDate, (triggerKey.getName, triggerKey.getGroup), (jobKey.getName, jobKey.getGroup))
   }
