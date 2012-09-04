@@ -310,7 +310,7 @@ class Squartz(
   def deleteJob(jobName: String, jobGroup: String): Boolean =
     scheduler.deleteJob(new JobKey(jobName, jobGroup))
 
-  def checkExists(jobName: String, jobGroup: String): Boolean =
+  def checkJobExists(jobName: String, jobGroup: String): Boolean =
     scheduler.checkExists(new JobKey(jobName, jobGroup))
 
   def shutdown { scheduler.shutdown; this; }
