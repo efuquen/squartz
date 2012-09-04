@@ -33,6 +33,14 @@ object Squartz {
       val user: String,
       val password: String
   )
+
+  implicit def mapToJProps(map: Map[String,String]): java.util.Properties = {
+    val javaProperties = new java.util.Properties
+    for((key, value) <- map) {
+      javaProperties.setProperty(key, value)
+    }
+    javaProperties
+  }
  
   //can only call once for default scheduler
   def build : Squartz = {
@@ -52,27 +60,32 @@ object Squartz {
     jobStore: String = "org.quartz.simpl.RAMJobStore",
     jdbcConfigOpt: Option[JdbcConfig] = None
   ): Squartz = {
-    val props = new java.util.Properties
-    props.setProperty("org.quartz.scheduler.instanceName", name)
-    props.setProperty("org.quartz.threadPool.threadCount", threadCount.toString)
-    props.setProperty("org.quartz.jobStore.class", jobStore)
-    if(jobStore == "org.quartz.impl.jdbcjobstore.JobStoreTX") {
+    val props = Map[String,String](
+      "org.quartz.scheduler.instanceName" -> name,
+      "org.quartz.threadPool.threadCount" -> threadCount.toString,
+      "org.quartz.jobStore.class" -> jobStore
+    ) ++ (if(jobStore == "org.quartz.impl.jdbcjobstore.JobStoreTX") {
       jdbcConfigOpt match {
         case Some(jdbcConfig) =>
-          props.setProperty("org.quartz.jobStore.dataSource", jdbcConfig.name)
-          props.setProperty("org.quartz.dataSource.%s.driver".format(jdbcConfig.name), jdbcConfig.driver)
-          jdbcConfig.driver match {
-            case "org.postgresql.Driver" =>
-              props.setProperty("org.quartz.jobStore.driverDelegateClass", "org.quartz.impl.jdbcjobstore.PostgreSQLDelegate")
-            case _ => Unit 
-          }
-          props.setProperty("org.quartz.dataSource.%s.URL".format(jdbcConfig.name), jdbcConfig.url)
-          props.setProperty("org.quartz.dataSource.%s.user".format(jdbcConfig.name), jdbcConfig.user)
-          props.setProperty("org.quartz.dataSource.%s.password".format(jdbcConfig.name), jdbcConfig.password)
+          val jdbcConfigNamespace = "org.quartz.dataSource." + jdbcConfig.name 
+          Map[String,String](
+            "org.quartz.jobStore.dataSource" -> jdbcConfig.name,
+            jdbcConfigNamespace + ".driver" -> jdbcConfig.driver,
+            jdbcConfigNamespace + ".URL" -> jdbcConfig.url,
+            jdbcConfigNamespace + ".user" -> jdbcConfig.user,
+            jdbcConfigNamespace + ".password" -> jdbcConfig.password
+          ) ++ (if(jdbcConfig.driver == "org.postgresql.Driver") {
+            Map[String,String]("org.quartz.jobStore.driverDelegateClass" -> 
+                "org.quartz.impl.jdbcjobstore.PostgreSQLDelegate")
+          } else {
+            Map[String,String]()
+          })
         case None =>
           throw new Exception("Need to specify jdbcConfig for " + jobStore)
       }
-    }
+    } else {
+      Map[String,String]()
+    })
     build(props)
   }
     
