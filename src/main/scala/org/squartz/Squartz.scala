@@ -23,6 +23,9 @@ import com.codahale.jerkson.Json
 
 import org.quartz._
 import org.quartz.impl._
+import org.quartz.impl.matchers.GroupMatcher
+
+import scala.collection.JavaConversions._
 
 object Squartz {
   
@@ -306,6 +309,31 @@ class Squartz(
       None 
     }
   }
+
+  def getTriggersForJob(jobName: String, jobGroup: String): Seq[Trigger] =
+    getTriggersForJob(new JobKey(jobName, jobGroup))
+
+  def getTriggersForJob(jobKey: JobKey): Seq[Trigger] =
+    scheduler.getTriggersOfJob(jobKey)
+
+  def getJobGroupNames: Seq[String] = scheduler.getJobGroupNames
+
+  def getJobKeysForGroup(groupName: String): Seq[JobKey] =
+    scheduler.getJobKeys(GroupMatcher.jobGroupEquals(groupName)).toArray(Array[JobKey]())
+
+  def getAllJobKeys: Seq[JobKey] =
+    getJobGroupNames.map(getJobKeysForGroup(_)).flatten
+
+  def getJobsForGroup(groupName: String): Seq[JobDetail] =
+    getJobKeysForGroup(groupName).map(getJob(_))
+
+  def getAllJobs: Seq[JobDetail] = getAllJobKeys.map(getJob(_))
+
+  def getJob(jobKey: JobKey): JobDetail =
+    scheduler.getJobDetail(jobKey)
+
+  def getJob(jobName: String, jobGroup: String): JobDetail =
+    scheduler.getJobDetail(new JobKey(jobName, jobGroup))
 
   def deleteJob(jobName: String, jobGroup: String): Boolean =
     scheduler.deleteJob(new JobKey(jobName, jobGroup))
