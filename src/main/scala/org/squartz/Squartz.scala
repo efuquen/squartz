@@ -346,6 +346,8 @@ class Squartz(
   def checkJobExists(jobName: String, jobGroup: String): Boolean =
     scheduler.checkExists(new JobKey(jobName, jobGroup))
 
+  def getName = scheduler.getSchedulerName
+
   def shutdown { scheduler.shutdown; this; }
 }
 
