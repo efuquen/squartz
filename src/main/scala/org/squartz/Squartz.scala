@@ -332,7 +332,7 @@ class Squartz(
   def getJob(jobKey: JobKey): JobDetail =
     scheduler.getJobDetail(jobKey)
 
-  def getJob(jobName: String, jobGroup: String): JobDetail =
+  def getJob(jobGroup: String, jobName: String): JobDetail =
     scheduler.getJobDetail(new JobKey(jobName, jobGroup))
 
   def deleteAllJobs: Boolean = scheduler.deleteJobs(getAllJobKeys)
