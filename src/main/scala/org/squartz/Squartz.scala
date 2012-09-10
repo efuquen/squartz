@@ -332,7 +332,7 @@ class Squartz(
   def getJob(jobKey: JobKey): JobDetail =
     scheduler.getJobDetail(jobKey)
 
-  def getJob(jobGroup: String, jobName: String): JobDetail =
+  def getJob(jobName: String, jobGroup: String = "DEFAULT"): JobDetail =
     scheduler.getJobDetail(new JobKey(jobName, jobGroup))
 
   def deleteAllJobs: Boolean = scheduler.deleteJobs(getAllJobKeys)
@@ -340,10 +340,10 @@ class Squartz(
   def deleteJobsForGroup(jobGroup: String): Boolean =
     scheduler.deleteJobs(getJobKeysForGroup(jobGroup))
 
-  def deleteJob(jobName: String, jobGroup: String): Boolean =
+  def deleteJob(jobName: String, jobGroup: String = "DEFAULT"): Boolean =
     scheduler.deleteJob(new JobKey(jobName, jobGroup))
 
-  def checkJobExists(jobName: String, jobGroup: String): Boolean =
+  def checkJobExists(jobName: String, jobGroup: String = "DEFAULT"): Boolean =
     scheduler.checkExists(new JobKey(jobName, jobGroup))
 
   def getName = scheduler.getSchedulerName
