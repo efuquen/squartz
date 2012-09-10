@@ -1,4 +1,4 @@
-package squartz 
+package org.squartz 
 
 import java.util.Date
 
@@ -45,7 +45,7 @@ class PerformanceSuite extends fixture.FunSuite {
     }
   }
 
-  test("50 scheduled tasks in 10 seconds ") { squartzs: (Squartz, Squartz) =>
+  /*test("50 scheduled tasks in 10 seconds ") { squartzs: (Squartz, Squartz) =>
     val (ramSquartz: Squartz, jdbcSquartz: Squartz) = squartzs
     val offsetStartTime = 1000
     perfTest(fiftyRandMs, perfRunTimeMs + offsetStartTime * 2, offsetStartTime, 50, "ram")(ramSquartz)
@@ -73,7 +73,7 @@ class PerformanceSuite extends fixture.FunSuite {
     perfTest(threehundredRandMs, perfRunTimeMs + offsetStartTime * 2, offsetStartTime, 50, "jdbc")(jdbcSquartz) 
   }
 
-  /*test("1000 scheduled tasks in 10 seconds ") { squartzs: (Squartz, Squartz) =>
+  test("1000 scheduled tasks in 10 seconds ") { squartzs: (Squartz, Squartz) =>
     val (ramSquartz: Squartz, jdbcSquartz: Squartz) = squartzs
     val offsetStartTime = 30000
     //perfTest(thousandRandMs, perfRunTimeMs + offsetStartTime + 1000, offsetStartTime, 50, "ram")(ramSquartz)

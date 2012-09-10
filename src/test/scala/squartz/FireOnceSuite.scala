@@ -1,4 +1,4 @@
-package squartz
+package org.squartz
 
 import java.util.Date
 import Squartz._
