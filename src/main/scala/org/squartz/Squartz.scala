@@ -60,7 +60,7 @@ object Squartz {
   def build(
     name: String,
     threadCount: Int = 10,
-    jobStore: String = "org.quartz.simpl.RAMJobStore",
+    jobStore: String = "org.quartz.impl.RAMJobStore",
     jdbcConfigOpt: Option[JdbcConfig] = None
   ): Squartz = {
     val props = Map[String,String](
