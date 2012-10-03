@@ -196,7 +196,7 @@ object Squartz {
   def schedSimple[A <: Job](
     repeatInterval: Int,
     repeatUnit: Time,
-    repeatCount: Int,
+    totalCount: Int,
     
     startDateOpt: Option[Date] = None,
     endDateOpt: Option[Date] = None,
@@ -207,20 +207,20 @@ object Squartz {
   )(implicit squartz: Squartz, mA: Manifest[A]): (Date, (String, String), (String, String)) = {
     val builder = repeatUnit match {
       case SECONDS =>
-        if(repeatCount >= 0) {
-          SquartzSimpleBuilder.repeatSecondlyForTotalCount[A](repeatCount, repeatInterval)
+        if(totalCount >= 0) {
+          SquartzSimpleBuilder.repeatSecondlyForTotalCount[A](totalCount, repeatInterval)
         } else {
           SquartzSimpleBuilder.repeatSecondlyForever[A](repeatInterval)
         }
       case MINUTES =>
-        if(repeatCount >= 0) {
-          SquartzSimpleBuilder.repeatMinutelyForTotalCount[A](repeatCount, repeatInterval)
+        if(totalCount >= 0) {
+          SquartzSimpleBuilder.repeatMinutelyForTotalCount[A](totalCount, repeatInterval)
         } else {
           SquartzSimpleBuilder.repeatMinutelyForever[A](repeatInterval)
         }
       case HOURS =>
-        if(repeatCount >= 0) {
-          SquartzSimpleBuilder.repeatHourlyForTotalCount[A](repeatCount, repeatInterval)
+        if(totalCount >= 0) {
+          SquartzSimpleBuilder.repeatHourlyForTotalCount[A](totalCount, repeatInterval)
         } else {
           SquartzSimpleBuilder.repeatHourlyForever[A](repeatInterval)
         }
