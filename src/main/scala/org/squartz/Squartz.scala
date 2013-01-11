@@ -19,7 +19,7 @@ import java.util.Date
 
 import java.util.concurrent.locks.ReentrantLock
 
-import com.codahale.jerkson.Json
+import net.liftweb.json._
 
 import org.quartz._
 import org.quartz.impl._
@@ -151,7 +151,7 @@ object Squartz {
     schedSimpleForever(
       repeatInterval, repeatUnit,
       startDateOpt, endDateOpt, jobIdentOpt, triggerIdentOpt,
-      Some(Json.parse[Map[String,Any]](jsonStr)), triggerDataMapOpt
+      Some(parse(jsonStr).asInstanceOf[JObject].values), triggerDataMapOpt
     )
   }
 
@@ -351,7 +351,7 @@ class Squartz(
   def shutdown { scheduler.shutdown; this; }
 }
 
-case class Time
+abstract class Time
 
 case object SECONDS extends Time
 case object MINUTES extends Time

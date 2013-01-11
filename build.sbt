@@ -1,8 +1,10 @@
 name := "squartz"
 
-version := "1.0"
+version := "1.0-SNAPSHOT"
 
-scalaVersion := "2.9.1"
+scalaVersion := "2.10.0"
+
+crossScalaVersions := Seq("2.9.1", "2.9.2", "2.10.0")
 
 organization := "org.squartz"
 
@@ -12,7 +14,10 @@ licenses := Seq("Apache 2" -> url("http://www.apache.org/licenses/LICENSE-2.0.tx
 
 homepage := Some(url("http://squartz.org"))
 
-resolvers += "Codahale Repo" at "http://repo.codahale.com"
+resolvers ++= Seq(
+  "Codahale Repo" at "http://repo.codahale.com",
+  "Sonatype Snapshots" at "https://oss.sonatype.org/content/repositories/snapshots/"
+)
 
 libraryDependencies ++= Seq(
   "org.quartz-scheduler" % "quartz" % "2.1.3",
@@ -20,8 +25,8 @@ libraryDependencies ++= Seq(
   "ch.qos.logback" % "logback-classic" % "1.0.1",
   "ch.qos.logback" % "logback-core" % "1.0.1",
   "postgresql" % "postgresql" % "9.1-901.jdbc4",
-  "com.codahale" %% "jerkson" % "0.5.0",
-  "org.scalatest" %% "scalatest" % "1.8" % "test"
+  "net.liftweb" %% "lift-json" % "2.5-SNAPSHOT",
+  "org.scalatest" %% "scalatest" % "1.9.1" % "test"
 )
 
 publishMavenStyle := true
